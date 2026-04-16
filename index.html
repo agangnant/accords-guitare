@@ -7,95 +7,115 @@
 <title>Visualiseur d'Accords (Expert Mobile)</title>
 
 <style>
-/* ================== GLOBAL ================== */
-body {
-  margin: 0;
-  padding: 1rem;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
-  background:#f4f4f9;
-}
+  /* ================== GLOBAL ================== */
+  body {
+    /* Vos styles originaux */
+    margin: 0;
+    padding: 1rem;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
+    background: #f4f4f9;
 
-.container {
-  max-width: 100%;
-  background:#fff;
-  padding:1rem;
-  border-radius:12px;
-  box-shadow:0 8px 20px rgba(0,0,0,.1);
-}
+    /* === LES LIGNES POUR JUSTE REDUIRE === */
+    transform: scale(0.95);
+    transform-origin: top left;
+    width: 105.26%;
+    overflow-x: hidden;
+  }
 
-h1 {
-  text-align:center;
-  font-size:1.2rem;
-  margin-bottom:1rem;
-}
+  .container {
+    max-width: 100%;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .1);
+  }
 
-/* ================== CONTROLES ================== */
-.controls {
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  margin-bottom:1rem;
-}
+  h1 {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
 
-select {
-  width:100%;
-  padding:10px;
-  font-size:16px; /* empêche zoom iOS */
-}
+  /* ================== CONTROLES ================== */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
 
-/* ================== MANCHE ================== */
-.fretboard-wrapper {
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-}
+  select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    /* empêche zoom iOS */
+  }
 
-.fretboard {
-  display:grid;
-  grid-template-columns:32px repeat(6,48px);
-  gap:6px;
-}
+  /* ================== MANCHE ================== */
+  .fretboard-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
-.cell {
-  height:36px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+  .fretboard {
+    display: grid;
+    grid-template-columns: 32px repeat(6, 48px);
+    gap: 6px;
+  }
 
-.fret-number {
-  font-size:0.75em;
-  color:#777;
-}
+  .cell {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.fret-row { border-bottom:2px solid #999; }
-.nut { border-bottom:4px solid #333; }
+  .fret-number {
+    font-size: 0.75em;
+    color: #777;
+  }
 
-/* ================== NOTES ================== */
-.note {
-  width:28px;
-  height:28px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#fff;
-  font-size:0.7em;
-  opacity:.15;
-  transform:scale(.85);
-  transition:.2s;
-}
+  .fret-row {
+    border-bottom: 2px solid #999;
+  }
 
-.note.active { opacity:1; transform:scale(1); }
-.note.root { border:2px solid #fff; transform:scale(1.15); }
+  .nut {
+    border-bottom: 4px solid #333;
+  }
 
-/* Couleurs */
-.c{background:#e74c3c;} .cs{background:#f5b7b1;}
-.d{background:#e67e22;} .ds{background:#f5cba7;}
-.e{background:#f1c40f;}
-.f{background:#27ae60;} .fs{background:#abebc6;}
-.g{background:#3498db;} .gs{background:#aed6f1;}
-.a{background:#8e44ad;} .as{background:#d7bde2;}
-.b{background:#7f8c8d;}
+  /* ================== NOTES ================== */
+  .note {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.7em;
+    opacity: .15;
+    transform: scale(.85);
+    transition: .2s;
+  }
+
+  .note.active {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .note.root {
+    border: 2px solid #fff;
+    transform: scale(1.15);
+  }
+
+  /* Couleurs */
+  .c { background: #e74c3c; } .cs { background: #f5b7b1; }
+  .d { background: #e67e22; } .ds { background: #f5cba7; }
+  .e { background: #f1c40f; }
+  .f { background: #27ae60; } .fs { background: #abebc6; }
+  .g { background: #3498db; } .gs { background: #aed6f1; }
+  .a { background: #8e44ad; } .as { background: #d7bde2; }
+  .b { background: #7f8c8d; }
 </style>
 
 <!-- Liens pour la Progressive Web App (PWA) -->
