@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<title>Visualiseur d'Accords (Expert Mobile)</title>
+
+<style>
+/* ================== GLOBAL ================== */
+body {
+  margin: 0;
+  padding: 1rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
+  background:#f4f4f9;
+}
+
+.container {
+  max-width: 100%;
+  background:#fff;
+  padding:1rem;
+  border-radius:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,.1);
+}
+
+h1 {
+  text-align:center;
+  font-size:1.2rem;
+  margin-bottom:1rem;
+}
+
+/* ================== CONTROLES ================== */
+.controls {
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-bottom:1rem;
+}
+
+select {
+  width:100%;
+  padding:10px;
+  font-size:16px; /* empêche zoom iOS */
+}
+
+/* ================== MANCHE ================== */
+.fretboard-wrapper {
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+.fretboard {
+  display:grid;
+  grid-template-columns:32px repeat(6,48px);
+  gap:6px;
+}
+
+.cell {
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.fret-number {
+  font-size:0.75em;
+  color:#777;
+}
+
+.fret-row { border-bottom:2px solid #999; }
+.nut { border-bottom:4px solid #333; }
+
+/* ================== NOTES ================== */
+.note {
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:0.7em;
+  opacity:.15;
+  transform:scale(.85);
+  transition:.2s;
+}
+
+.note.active { opacity:1; transform:scale(1); }
+.note.root { border:2px solid #fff; transform:scale(1.15); }
+
+/* Couleurs */
+.c{background:#e74c3c;} .cs{background:#f5b7b1;}
+.d{background:#e67e22;} .ds{background:#f5cba7;}
+.e{background:#f1c40f;}
+.f{background:#27ae60;} .fs{background:#abebc6;}
+.g{background:#3498db;} .gs{background:#aed6f1;}
+.a{background:#8e44ad;} .as{background:#d7bde2;}
+.b{background:#7f8c8d;}
+</style>
+
+<!-- Liens pour la Progressive Web App (PWA) -->
+<meta name="theme-color" content="#333333"/>
+<link rel="manifest" href="manifest.json">
+
+<!-- Icône pour Apple -->
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Accords">
+
+<!-- Script pour enregistrer le Service Worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').then(registration => {
+        console.log('ServiceWorker enregistré avec succès: ', registration.scope);
+      }, err => {
+        console.log('Échec de l\'enregistrement du ServiceWorker: ', err);
+      });
+    });
+  }
+</script>
+</head>
+
+<body>
+<div class="container">
+<h1>Accords guitare</h1>
+
+<div class="controls">
+<select id="chord">
+  <option value="">— Accord —</option>
+
+<optgroup label="Accords Majeurs">
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+<option value="G">G</option>
+<option value="A">A</option>
+<option value="B">B</option>
+</optgroup>
+
+<optgroup label="Accords Mineurs">
+<option value="Cm">Cm</option>
+<option value="Dm">Dm</option>
+<option value="Em">Em</option>
+<option value="Fm">Fm</option>
+<option value="Gm">Gm</option>
+<option value="Am">Am</option>
+<option value="Bm">Bm</option>
+</optgroup>
+
+<optgroup label="Accords Majeurs ♯ / ♭">
+<option value="A#">Bb / A#</option>
+<option value="C#">Db / C#</option>
+<option value="D#">Eb / D#</option>
+<option value="F#">Gb / F#</option>
+<option value="G#">Ab / G#</option>
+</optgroup>
+
+
+
+<optgroup label="Accords Mineurs ♯ / ♭">
+<option value="C#m">Dbm / C#m</option>
+<option value="D#m">Ebm / D#m</option>
+<option value="F#m">Gbm / F#m</option>
+<option value="G#m">Abm / G#m</option>
+<option value="A#m">Bbm / A#m</option>
+</optgroup>
+
+<optgroup label="Accords Majeurs 7">
+<option value="C7">C7</option>
+<option value="D7">D7</option>
+<option value="E7">E7</option>
+<option value="F7">F7</option>
+<option value="G7">G7</option>
+<option value="A7">A7</option>
+<option value="B7">B7</option>
+</optgroup>
+
+<optgroup label="Accords Mineurs 7">
+<option value="Cm7">Cm7</option>
+<option value="Dm7">Dm7</option>
+<option value="Em7">Em7</option>
+<option value="Fm7">Fm7</option>
+<option value="Gm7">Gm7</option>
+<option value="Am7">Am7</option>
+<option value="Bm7">Bm7</option>
+</optgroup>
+
+<optgroup label="Accords 7 (♯ / ♭)">
+  <option value="A#7">Bb7 / A#7</option>
+  <option value="C#7">Db7 / C#7</option>
+  <option value="D#7">Eb7 / D#7</option>
+  <option value="F#7">Gb7 / F#7</option>
+  <option value="G#7">Ab7 / G#7</option>
+</optgroup>
+
+
+
+<optgroup label="Accords mineurs 7 (♯ / ♭)">
+  <option value="A#m7">Bbm7 / A#m7</option>
+  <option value="C#m7">Dbm7 / C#m7</option>
+  <option value="D#m7">Ebm7 / D#m7</option>
+  <option value="F#m7">Gbm7 / F#m7</option>
+  <option value="G#m7">Abm7 / G#m7</option>
+</optgroup>
+
+
+</select>
+
+<select id="position"></select>
+</div>
+
+<div class="fretboard-wrapper">
+  <div class="fretboard" id="fretboard"></div>
+</div>
+</div>
+
+<script>
+/* ================== VOICINGS COMPLETS ================== */
+/* (reprend ta logique expert — plusieurs positions) */
+const voicings = {
+
+/* ================== MAJEURS ================== */
+
+C: [
+  { name:'Ouverte', f:[
+    {s:6,f:-1},{s:5,f:3,r:true},{s:4,f:2},{s:3,f:0},{s:2,f:1},{s:1,f:0}
+  ]},
+  { name:'Barré case 3 (Forme de La)', f:[
+    {s:6,f:3},{s:5,f:3,r:true},{s:4,f:5},{s:3,f:5},{s:2,f:5},{s:1,f:3}
+  ]},
+  { name:'Barré case 8 (Forme de Mi)', f:[
+    {s:6,f:8},{s:5,f:10},{s:4,f:10},{s:3,f:9},{s:2,f:8,r:true},{s:1,f:8}
+  ]}
+],
+
+D: [
+  { name:'Ouverte', f:[
+    {s:6,f:-1},{s:5,f:-1},{s:4,f:0,r:true},{s:3,f:2},{s:2,f:3},{s:1,f:2}
+  ]},
+  { name:'Barré case 5 (Forme de La)', f:[
+    {s:6,f:-1},{s:5,f:5,r:true},{s:4,f:7},{s:3,f:7},{s:2,f:7},{s:1,f:5}
+  ]},
+  { name:'Barré case 10 (Forme de Mi)', f:[
+    {s:6,f:10,r:true},{s:5,f:12},{s:4,f:12},{s:3,f:11},{s:2,f:10},{s:1,f:10}
+  ]}
+],
+
+E: [
+  { name:'Ouverte', f:[
+    {s:6,f:0,r:true},{s:5,f:2},{s:4,f:2},{s:3,f:1},{s:2,f:0},{s:1,f:0}
+  ]},
+  { name:'Barré case 7 (Forme de La)', f:[
+    {s:6,f:-1},{s:5,f:7,r:true},{s:4,f:9},{s:3,f:9},{s:2,f:9},{s:1,f:7}
+  ]}
+],
+
+F: [
+  { name:'Barré case 1 (Forme de Mi)', f:[
+    {s:6,f:1,r:true},{s:5,f:3},{s:4,f:3},{s:3,f:2},{s:2,f:1},{s:1,f:1}
+  ]},
+  { name:'Barré case 8 (Forme de La)', f:[
+    {s:6,f:-1},{s:5,f:8,r:true},{s:4,f:10},{s:3,f:10},{s:2,f:10},{s:1,f:8}
+  ]}
+],
+
+G: [
+  { name:'Ouverte', f:[
+    {s:6,f:3,r:true},{s:5,f:2},{s:4,f:0},{s:3,f:0},{s:2,f:0},{s:1,f:3}
+  ]},
+  { name:'Barré case 3 (Forme de Mi)', f:[
+    {s:6,f:3,r:true},{s:5,f:5},{s:4,f:5},{s:3,f:4},{s:2,f:3},{s:1,f:3}
+  ]},
+  { name:'Barré case 10 (Forme de La)', f:[
+    {s:6,f:-1},{s:5,f:10,r:true},{s:4,f:12},{s:3,f:12},{s:2,f:12},{s:1,f:10}
+  ]}
+],
+
+A: [
+  { name:'Ouverte', f:[
+    {s:6,f:-1},{s:5,f:0,r:true},{s:4,f:2},{s:3,f:2},{s:2,f:2},{s:1,f:0}
+  ]},
+  { name:'Barré case 5 (Forme de Mi)', f:[
+    {s:6,f:5,r:true},{s:5,f:7},{s:4,f:7},{s:3,f:6},{s:2,f:5},{s:1,f:5}
+  ]}
+],
+
+B: [
+  { name:'Barré case 2 (Forme de La)', f:[
+    {s:6,f:-1},{s:5,f:2,r:true},{s:4,f:4},{s:3,f:4},{s:2,f:4},{s:1,f:2}
+  ]},
+  { name:'Barré case 7 (Forme de Mi)', f:[
+    {s:6,f:7,r:true},{s:5,f:9},{s:4,f:9},{s:3,f:8},{s:2,f:7},{s:1,f:7}
+  ]}
+],
+
+/* ================== MINEURS ================== */
+
+Cm: [
+  { name:'Barré case 3 (Forme de Am)', f:[
+    {s:6,f:-1},{s:5,f:3,r:true},{s:4,f:5},{s:3,f:5},{s:2,f:4},{s:1,f:3}
+  ]},
+  { name:'Barré case 8 (Forme de Em)', f:[
+    {s:6,f:8,r:true},{s:5,f:10},{s:4,f:10},{s:3,f:8},{s:2,f:8},{s:1,f:8}
+  ]}
+],
+
+Dm: [
+  { name:'Ouverte', f:[
+    {s:6,f:-1},{s:5,f:-1},{s:4,f:0,r:true},{s:3,f:2},{s:2,f:3},{s:1,f:1}
+  ]},
+  { name:'Barré case 5 (Forme de Am)', f:[
+    {s:6,f:-1},{s:5,f:5,r:true},{s:4,f:7},{s:3,f:7},{s:2,f:6},{s:1,f:5}
+  ]},
+  { name:'Barré case 10 (Forme de Em)', f:[
+    {s:6,f:10,r:true},{s:5,f:12},{s:4,f:12},{s:3,f:10},{s:2,f:10},{s:1,f:10}
+  ]}
+],
+
+Em: [
+  { name:'Ouverte', f:[
+    {s:6,f:0,r:true},{s:5,f:2},{s:4,f:2},{s:3,f:0},{s:2,f:0},{s:1,f:0}
+  ]},
+  { name:'Barré case 7 (Forme de Am)', f:[
+    {s:6,f:-1},{s:5,f:7,r:true},{s:4,f:9},{s:3,f:9},{s:2,f:8},{s:1,f:7}
+  ]}
+],
+
+Fm: [
+  { name:'Barré case 1 (Forme de Em)', f:[
+    {s:6,f:1,r:true},{s:5,f:3},{s:4,f:3},{s:3,f:1},{s:2,f:1},{s:1,f:1}
+  ]}
+],
+
+Gm: [
+  { name:'Barré case 3 (Forme de Em)', f:[
+    {s:6,f:3,r:true},{s:5,f:5},{s:4,f:5},{s:3,f:3},{s:2,f:3},{s:1,f:3}
+  ]},
+  { name:'Barré case 10 (Forme de Am)', f:[
+    {s:6,f:-1},{s:5,f:10,r:true},{s:4,f:12},{s:3,f:12},{s:2,f:11},{s:1,f:10}
+  ]}
+],
+
+Am: [
+  { name:'Ouverte', f:[
+    {s:6,f:-1},{s:5,f:0,r:true},{s:4,f:2},{s:3,f:2},{s:2,f:1},{s:1,f:0}
+  ]},
+  { name:'Barré case 5 (Forme de Em)', f:[
+    {s:6,f:5,r:true},{s:5,f:7},{s:4,f:7},{s:3,f:5},{s:2,f:5},{s:1,f:5}
+  ]}
+],
+
+Bm: [
+  { name:'Barré case 2 (Forme de Am)', f:[
+    {s:6,f:-1},{s:5,f:2,r:true},{s:4,f:4},{s:3,f:4},{s:2,f:3},{s:1,f:2}
+  ]},
+  { name:'Barré case 7 (Forme de Em)', f:[
+    {s:6,f:7,r:true},{s:5,f:9},{s:4,f:9},{s:3,f:7},{s:2,f:7},{s:1,f:7}
+  ]}
+],
+
+/* ================== 7 DOMINANTE ================== */
+
+C7: [
+  { name:'Ouverte', f:[
+    {s:6,f:-1},{s:5,f:3,r:true},{s:4,f:2},{s:3,f:3},{s:2,f:1},{s:1,f:0}
+  ]},
+  { name:'Barré case 8 (Forme de E7)', f:[
+    {s:6,f:8,r:true},{s:5,f:10},{s:4,f:8},{s:3,f:9},{s:2,f:8},{s:1,f:8}
+  ]}
+],
+
+D7: [
+  { name:'Ouverte', f:[
+    {s:6,f:-1},{s:5,f:-1},{s:4,f:0,r:true},{s:3,f:2},{s:2,f:1},{s:1,f:2}
+  ]},
+  { name:'Barré case 5 (Forme de A7)', f:[
+    {s:6,f:-1},{s:5,f:5,r:true},{s:4,f:7},{s:3,f:5},{s:2,f:7},{s:1,f:5}
+  ]}
+],
+
+E7: [
+  { name:'Ouverte', f:[
+    {s:6,f:0,r:true},{s:5,f:2},{s:4,f:0},{s:3,f:1},{s:2,f:0},{s:1,f:0}
+  ]},
+  { name:'Barré case 7 (Forme de A7)', f:[
+    {s:6,f:-1},{s:5,f:7,r:true},{s:4,f:9},{s:3,f:7},{s:2,f:8},{s:1,f:7}
+  ]}
+],
+
+F7: [
+  { name:'Barré case 1 (Forme de E7)', f:[
+    {s:6,f:1,r:true},{s:5,f:3},{s:4,f:1},{s:3,f:2},{s:2,f:1},{s:1,f:1}
+  ]}
+],
+
+G7: [
+  { name:'Ouverte', f:[
+    {s:6,f:3,r:true},{s:5,f:2},{s:4,f:0},{s:3,f:0},{s:2,f:0},{s:1,f:1}
+  ]},
+  { name:'Barré case 3 (Forme de E7)', f:[
+    {s:6,f:3,r:true},{s:5,f:5},{s:4,f:3},{s:3,f:4},{s:2,f:3},{s:1,f:3}
+  ]}
+],
+
+A7: [
+  { name:'Ouverte', f:[
+    {s:6,f:-1},{s:5,f:0,r:true},{s:4,f:2},{s:3,f:0},{s:2,f:2},{s:1,f:0}
+  ]},
+  { name:'Barré case 5 (Forme de E7)', f:[
+    {s:6,f:5,r:true},{s:5,f:7},{s:4,f:5},{s:3,f:6},{s:2,f:5},{s:1,f:5}
+  ]}
+],
+
+B7: [
+  { name:'Ouverte', f:[
+    {s:6,f:-1},{s:5,f:2,r:true},{s:4,f:1},{s:3,f:2},{s:2,f:0},{s:1,f:2}
+  ]},
+  { name:'Barré case 7 (Forme de E7)', f:[
+    {s:6,f:7,r:true},{s:5,f:9},{s:4,f:7},{s:3,f:8},{s:2,f:7},{s:1,f:7}
+  ]}
+],
+
+/* ================== ACCORDS m7 ================== */
+
+Cm7: [
+  {
+    name:'Barré case 3 (Forme de Em)',
+    f:[
+      {s:6,f:3,r:true},
+      {s:5,f:5},
+      {s:4,f:3},
+      {s:3,f:5},
+      {s:2,f:4},
+      {s:1,f:3}
+    ]
+  }
+],
+
+Dm7: [
+  {
+    name:'Ouverte',
+    f:[
+      {s:6,f:-1},
+      {s:5,f:-1},
+      {s:4,f:0,r:true},
+      {s:3,f:2},
+      {s:2,f:1},
+      {s:1,f:1}
+    ]
+  },
+  {
+    name:'Barré case 5 (Forme de Em)',
+    f:[
+      {s:6,f:5,r:true},
+      {s:5,f:7},
+      {s:4,f:5},
+      {s:3,f:5},
+      {s:2,f:6},
+      {s:1,f:5}
+    ]
+  }
+],
+
+Em7: [
+  {
+    name:'Ouverte',
+    f:[
+      {s:6,f:0,r:true},
+      {s:5,f:2},
+      {s:4,f:0},
+      {s:3,f:0},
+      {s:2,f:0},
+      {s:1,f:0}
+    ]
+  },
+  {
+    name:'Barré case 7 (Forme de Am)',
+    f:[
+      {s:6,f:-1},
+      {s:5,f:7,r:true},
+      {s:4,f:9},
+      {s:3,f:7},
+      {s:2,f:8},
+      {s:1,f:7}
+    ]
+  }
+],
+
+Fm7: [
+  {
+    name:'Barré case 1 (Forme de Em)',
+    f:[
+      {s:6,f:1,r:true},
+      {s:5,f:3},
+      {s:4,f:1},
+      {s:3,f:1},
+      {s:2,f:1},
+      {s:1,f:1}
+    ]
+  }
+],
+
+Gm7: [
+  {
+    name:'Barré case 3 (Forme de Em)',
+    f:[
+      {s:6,f:3,r:true},
+      {s:5,f:5},
+      {s:4,f:3},
+      {s:3,f:3},
+      {s:2,f:3},
+      {s:1,f:3}
+    ]
+  }
+],
+
+Am7: [
+  {
+    name:'Ouverte',
+    f:[
+      {s:6,f:-1},
+      {s:5,f:0,r:true},
+      {s:4,f:2},
+      {s:3,f:0},
+      {s:2,f:1},
+      {s:1,f:0}
+    ]
+  },
+  {
+    name:'Barré case 5 (Forme de Em)',
+    f:[
+      {s:6,f:5,r:true},
+      {s:5,f:7},
+      {s:4,f:5},
+      {s:3,f:5},
+      {s:2,f:5},
+      {s:1,f:5}
+    ]
+  }
+],
+
+Bm7: [
+  {
+    name:'Barré case 2 (Forme de Am)',
+    f:[
+      {s:6,f:-1},
+      {s:5,f:2,r:true},
+      {s:4,f:4},
+      {s:3,f:2},
+      {s:2,f:3},
+      {s:1,f:2}
+    ]
+  }
+],
+
+/* ================== DIÈSES (⇔ BÉMOLS) ================== */
+
+
+'A#': [
+  {
+    name:'Barré case 1 (Forme de La)',
+    f:[
+      {s:6,f:-1},
+      {s:5,f:1,r:true},
+      {s:4,f:3},
+      {s:3,f:3},
+      {s:2,f:3},
+      {s:1,f:1}
+    ]
+  },
+  {
+    name:'Barré case 6 (Forme de Mi)',
+    f:[
+      {s:6,f:6,r:true},
+      {s:5,f:8},
+      {s:4,f:8},
+      {s:3,f:7},
+      {s:2,f:6},
+      {s:1,f:6}
+    ]
+  }
+],
+
+
+'C#': [
+  {
+    name:'Barré case 4 (Forme de La)',
+    f:[
+      {s:6,f:-1},{s:5,f:4,r:true},{s:4,f:6},{s:3,f:6},{s:2,f:6},{s:1,f:4}
+    ]
+  },
+  {
+    name:'Barré case 9 (Forme de Mi)',
+    f:[
+      {s:6,f:9,r:true},{s:5,f:11},{s:4,f:11},{s:3,f:10},{s:2,f:9},{s:1,f:9}
+    ]
+  }
+],
+
+'D#': [
+  {
+    name:'Barré case 6 (Forme de La)',
+    f:[
+      {s:6,f:-1},{s:5,f:6,r:true},{s:4,f:8},{s:3,f:8},{s:2,f:8},{s:1,f:6}
+    ]
+  }
+],
+
+'F#': [
+  {
+    name:'Barré case 2 (Forme de Mi)',
+    f:[
+      {s:6,f:2,r:true},{s:5,f:4},{s:4,f:4},{s:3,f:3},{s:2,f:2},{s:1,f:2}
+    ]
+  },
+  {
+    name:'Barré case 9 (Forme de La)',
+    f:[
+      {s:6,f:-1},{s:5,f:9,r:true},{s:4,f:11},{s:3,f:11},{s:2,f:11},{s:1,f:9}
+    ]
+  }
+],
+
+'G#': [
+  {
+    name:'Barré case 4 (Forme de Mi)',
+    f:[
+      {s:6,f:4,r:true},{s:5,f:6},{s:4,f:6},{s:3,f:5},{s:2,f:4},{s:1,f:4}
+    ]
+  }
+],
+
+/* ================== MINEURS DIÈSES ================== */
+
+'A#m': [
+  {
+    name:'Barré case 6 (Forme de Em)',
+    f:[
+      {s:6,f:6,r:true},{s:5,f:8},{s:4,f:8},{s:3,f:6},{s:2,f:6},{s:1,f:6}
+    ]
+  }
+],
+
+'C#m': [
+  {
+    name:'Barré case 4 (Forme de Am)',
+    f:[
+      {s:6,f:-1},{s:5,f:4,r:true},{s:4,f:6},{s:3,f:6},{s:2,f:5},{s:1,f:4}
+    ]
+  },
+  {
+    name:'Barré case 9 (Forme de Em)',
+    f:[
+      {s:6,f:9,r:true},{s:5,f:11},{s:4,f:11},{s:3,f:9},{s:2,f:9},{s:1,f:9}
+    ]
+  }
+],
+
+'D#m': [
+  {
+    name:'Barré case 6 (Forme de Am)',
+    f:[
+      {s:6,f:-1},{s:5,f:6,r:true},{s:4,f:8},{s:3,f:8},{s:2,f:7},{s:1,f:6}
+    ]
+  }
+],
+
+'F#m': [
+  {
+    name:'Barré case 2 (Forme de Em)',
+    f:[
+      {s:6,f:2,r:true},{s:5,f:4},{s:4,f:4},{s:3,f:2},{s:2,f:2},{s:1,f:2}
+    ]
+  },
+  {
+    name:'Barré case 9 (Forme de Am)',
+    f:[
+      {s:6,f:-1},{s:5,f:9,r:true},{s:4,f:11},{s:3,f:11},{s:2,f:10},{s:1,f:9}
+    ]
+  }
+],
+
+'G#m': [
+  {
+    name:'Barré case 4 (Forme de Em)',
+    f:[
+      {s:6,f:4,r:true},{s:5,f:6},{s:4,f:6},{s:3,f:4},{s:2,f:4},{s:1,f:4}
+    ]
+  }
+],
+
+/* ================== 7 ♯ / ♭ ================== */
+
+'A#7': [
+  {
+    name:'Barré case 1 (Forme de A7)',
+    f:[
+      {s:6,f:-1},{s:5,f:1,r:true},{s:4,f:3},{s:3,f:1},{s:2,f:3},{s:1,f:1}
+    ]
+  }
+],
+
+'C#7': [
+  {
+    name:'Barré case 4 (Forme de E7)',
+    f:[
+      {s:6,f:4,r:true},{s:5,f:6},{s:4,f:4},{s:3,f:5},{s:2,f:4},{s:1,f:4}
+    ]
+  }
+],
+
+'D#7': [
+  {
+    name:'Barré case 6 (Forme de A7)',
+    f:[
+      {s:6,f:-1},{s:5,f:6,r:true},{s:4,f:8},{s:3,f:6},{s:2,f:8},{s:1,f:6}
+    ]
+  }
+],
+
+'F#7': [
+  {
+    name:'Barré case 2 (Forme de E7)',
+    f:[
+      {s:6,f:2,r:true},{s:5,f:4},{s:4,f:2},{s:3,f:3},{s:2,f:2},{s:1,f:2}
+    ]
+  }
+],
+
+'G#7': [
+  {
+    name:'Barré case 4 (Forme de E7)',
+    f:[
+      {s:6,f:4,r:true},{s:5,f:6},{s:4,f:4},{s:3,f:5},{s:2,f:4},{s:1,f:4}
+    ]
+  }
+],
+
+/* ================== m7 ♯ / ♭ ================== */
+
+'A#m7': [
+  {
+    name:'Barré case 6 (Forme de Em)',
+    f:[
+      {s:6,f:6,r:true},{s:5,f:8},{s:4,f:6},{s:3,f:6},{s:2,f:6},{s:1,f:6}
+    ]
+  }
+],
+
+'C#m7': [
+  {
+    name:'Barré case 4 (Forme de Em)',
+    f:[
+      {s:6,f:4,r:true},{s:5,f:6},{s:4,f:4},{s:3,f:4},{s:2,f:5},{s:1,f:4}
+    ]
+  }
+],
+
+'D#m7': [
+  {
+    name:'Barré case 6 (Forme de Am)',
+    f:[
+      {s:6,f:-1},{s:5,f:6,r:true},{s:4,f:8},{s:3,f:6},{s:2,f:7},{s:1,f:6}
+    ]
+  }
+],
+
+'F#m7': [
+  {
+    name:'Barré case 2 (Forme de Em)',
+    f:[
+      {s:6,f:2,r:true},{s:5,f:4},{s:4,f:2},{s:3,f:2},{s:2,f:2},{s:1,f:2}
+    ]
+  }
+],
+
+'G#m7': [
+  {
+    name:'Barré case 4 (Forme de Em)',
+    f:[
+      {s:6,f:4,r:true},{s:5,f:6},{s:4,f:4},{s:3,f:4},{s:2,f:4},{s:1,f:4}
+    ]
+  }
+]
+
+
+};
+
+/* ================== MANCHE ================== */
+const notes=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const cls={C:"c","C#":"cs",D:"d","D#":"ds",E:"e",F:"f","F#":"fs",G:"g","G#":"gs",A:"a","A#":"as",B:"b"};
+const tuning=[40,45,50,55,59,64];
+
+let html='<div></div>';
+for(let s=5;s>=0;s--){
+  const n=notes[tuning[s]%12];
+  html+=`<div class="cell nut"><div class="note ${cls[n]}" data-s="${s}" data-f="0">${n}</div></div>`;
+}
+for(let f=1;f<=12;f++){
+  html+=`<div class="fret-number">${f}</div>`;
+  for(let s=5;s>=0;s--){
+    const n=notes[(tuning[s]+f)%12];
+    html+=`<div class="cell fret-row"><div class="note ${cls[n]}" data-s="${s}" data-f="${f}">${n}</div></div>`;
+  }
+}
+document.getElementById("fretboard").innerHTML=html;
+const allNotes=[...document.querySelectorAll(".note")];
+
+/* ================== LOGIQUE ================== */
+const chordSel=document.getElementById("chord");
+const posSel=document.getElementById("position");
+
+function render(){
+  allNotes.forEach(n=>n.classList.remove("active","root"));
+  const v=voicings[chordSel.value];
+  if(!v) return;
+  const p=v[posSel.value];
+  if(!p) return;
+  p.f.forEach(n=>{
+    const el=document.querySelector(`.note[data-s="${n.s-1}"][data-f="${n.f}"]`);
+    if(el){
+      el.classList.add("active");
+      if(n.r) el.classList.add("root");
+    }
+  });
+}
+
+
+chordSel.addEventListener('change', () => {
+  posSel.innerHTML = '';
+  const v = voicings[chordSel.value];
+  if (!v) return;
+
+  v.forEach((p, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = p.name;
+    posSel.appendChild(opt);
+  });
+
+  posSel.selectedIndex = 0;
+  render();
+});
+
+posSel.addEventListener('change', render);
+
+</script>
+</body>
+</html>
