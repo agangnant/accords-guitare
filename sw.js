@@ -2,7 +2,7 @@ const CACHE_NAME = 'accords-guitare-cache-v1';
 // IMPORTANT : Listez ici tous les fichiers que votre application utilise.
 const urlsToCache = [
   '/',
-  'all_chords_guitar_mobile3.html',
+  'all_chords_guitar_mobile_app.html',
   'manifest.json',
   'icon-192.png',
   'icon-512.png'
