@@ -93,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
     oscillator.stop(audioCtx.currentTime + duration);
   }
 
-
   function addSoundToNotes() {
     const unlockAndPlay = (noteElement, event) => {
       event.preventDefault();
@@ -104,13 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
         audioCtx = new AudioContext();
       }
 
-      // ✅ PAS de await ici
+      // ✅ autorise l’audio
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
 
-      if (audioCtx.state !== 'running') return;
-
+      // ✅ JOUER LA NOTE SANS TESTER l’état
       const stringIndex = parseInt(noteElement.dataset.s);
       const fretNumber = parseInt(noteElement.dataset.f);
       const midiNote = TUNING[stringIndex] + fretNumber;
@@ -135,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     });
   }
-
 
 
 
