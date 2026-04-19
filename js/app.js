@@ -24,28 +24,37 @@ document.addEventListener('DOMContentLoaded', () => {
   let allNoteElements = [];
 
 
+  function unlockIOSAudio() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContext();
+
+    // 🔥 SON MUET – obligatoire sur iOS
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    gain.gain.value = 0; // muet
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start(0);
+    osc.stop(0.01);
+  }
+
 
 
   function setupAudioUnlockUX() {
     const button = document.getElementById('unlock-audio');
 
-    button.addEventListener('click', () => {
-      if (!audioCtx) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContext();
-      }
+    const handler = () => {
+      if (!audioCtx) unlockIOSAudio();
+      button.style.display = 'none';
+    };
 
-      // ✅ PAS de await sur iOS
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-
-      if (audioCtx.state === 'running') {
-        isAudioUnlocked = true;
-        button.style.display = 'none';
-      }
-    });
+    button.addEventListener('touchstart', handler, { passive:true });
+    button.addEventListener('click', handler);
   }
+
+
 
 
 
@@ -74,41 +83,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-    function playNote(midiNote, duration, waveform) {
-    // Sécurité : si le contexte n'est pas prêt ou si le son est coupé, on ne fait rien.
-    if (!audioCtx || audioCtx.state !== 'running' || isMuted) return;
 
-    const frequency = midiToFrequency(midiNote);
-    if (!frequency) return;
+  function playNote(midiNote, duration, waveform) {
+    if (!audioCtx || isMuted) return;
 
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    oscillator.type = waveform;
-    oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    oscillator.start(audioCtx.currentTime);
-    oscillator.stop(audioCtx.currentTime + duration);
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = waveform;
+    osc.frequency.value = midiToFrequency(midiNote);
+
+    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
   }
 
+
+
   function addSoundToNotes() {
-    const unlockAndPlay = (noteElement, event) => {
+    const playFromNote = (noteElement, event) => {
       event.preventDefault();
       event.stopPropagation();
 
-      if (!audioCtx) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContext();
-      }
+      if (!audioCtx) return; // son pas encore activé
 
-      // ✅ autorise l’audio
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-
-      // ✅ JOUER LA NOTE SANS TESTER l’état
       const stringIndex = parseInt(noteElement.dataset.s);
       const fretNumber = parseInt(noteElement.dataset.f);
       const midiNote = TUNING[stringIndex] + fretNumber;
@@ -123,16 +126,17 @@ document.addEventListener('DOMContentLoaded', () => {
     allNoteElements.forEach(noteElement => {
       noteElement.addEventListener(
         'touchstart',
-        e => unlockAndPlay(noteElement, e),
+        e => playFromNote(noteElement, e),
         { passive:false }
       );
 
       noteElement.addEventListener(
         'click',
-        e => unlockAndPlay(noteElement, e)
+        e => playFromNote(noteElement, e)
       );
     });
   }
+
 
 
 
