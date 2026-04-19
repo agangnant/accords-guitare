@@ -1,25 +1,19 @@
-/* css/style.css (version finale corrigée pour le centrage) */
+/* css/style.css (version corrigée et finale) */
 
-/* ================== RÈGLE FONDAMENTALE ================== */
-/* Applique un modèle de boîte plus intuitif à tous les éléments.
-   Cela empêche le padding d'ajouter de la largeur et de causer des débordements. */
 * {
   box-sizing: border-box;
 }
 
-/* ================== GLOBAL ================== */
 body {
-  margin: 0; /* MODIFIÉ : On supprime toute marge/padding par défaut */
+  margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
   background: #f4f4f9;
 }
 
 .container {
-  /* MODIFIÉ : On utilise la marge pour centrer et espacer le conteneur */
   margin: 1rem auto;
-  width: 95%; /* MODIFIÉ : On s'assure qu'il y a toujours un petit espace sur les côtés */
-  max-width: 500px; /* Limite la largeur sur les très grands écrans (tablettes, etc.) */
-
+  width: 95%;
+  max-width: 500px;
   background: #fff;
   padding: 1rem;
   border-radius: 12px;
@@ -33,7 +27,6 @@ h1 {
   margin-bottom: 1rem;
 }
 
-/* ================== CONTROLES ================== */
 .controls {
   display: flex;
   flex-direction: column;
@@ -47,7 +40,6 @@ select {
   font-size: 16px;
 }
 
-/* ================== MANCHE ================== */
 .fretboard-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -57,7 +49,7 @@ select {
   display: grid;
   grid-template-columns: 24px repeat(6, 40px);
   gap: 5px;
-  margin: 0 auto; /* MODIFIÉ : On centre le manche lui-même dans son conteneur */
+  margin: 0 auto;
 }
 
 .cell {
@@ -95,9 +87,21 @@ select {
   font-size: 0.65em;
   opacity: .15;
   transform: scale(.85);
-  transition: .2s;
+  transition: opacity 0.2s ease-in-out;
 }
 
+/* Quand un accord est affiché, on rend toutes les notes "fantômes" par défaut */
+.fretboard.chord-active .note {
+  opacity: 0.07;
+}
+
+/* On rend la règle pour les notes actives PLUS SPÉCIFIQUE pour qu'elle gagne la priorité */
+.fretboard.chord-active .note.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* On garde aussi l'ancienne règle pour le mode "Toutes les notes" */
 .note.active {
   opacity: 1;
   transform: scale(1);

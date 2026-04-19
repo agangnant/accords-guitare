@@ -1,8 +1,7 @@
-// js/app.js (version mise à jour)
+// js/app.js (version corrigée et finale)
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ... (Toutes les constantes et les fonctions generateFretboard et populateChordSelector restent identiques) ...
   const chordSelector = document.getElementById("chord");
   const positionSelector = document.getElementById("position");
   const fretboardContainer = document.getElementById("fretboard");
@@ -30,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function populateChordSelector() {
-    // Cette fonction ne change pas, elle construit le menu comme avant.
     const chordGroups = {
       "Accords Majeurs": { chords: ["C", "D", "E", "F", "G", "A", "B"] },
       "Accords Mineurs": { chords: ["Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm"] },
@@ -57,36 +55,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ================== LOGIQUE D'AFFICHAGE DES ACCORDS (MODIFIÉE) ==================
+  // ================== LOGIQUE D'AFFICHAGE (CORRIGÉE) ==================
   function renderChord() {
-    // 1. On efface toujours le manche pour commencer
-    allNoteElements.forEach(n => n.classList.remove("active", "root"));
+    const selectedValue = chordSelector.value;
+    const isRealChord = selectedValue && selectedValue !== 'all-notes';
 
-    // 2. CAS SPÉCIAL : Si l'utilisateur a choisi "Toutes les notes"
-    if (chordSelector.value === 'all-notes') {
-      allNoteElements.forEach(n => n.classList.add('active'));
-      return; // On arrête la fonction ici, on n'a pas besoin d'aller plus loin.
+    // 1. Gérer la classe d'état sur le manche
+    if (isRealChord) {
+      fretboardContainer.classList.add('chord-active');
+    } else {
+      fretboardContainer.classList.remove('chord-active');
     }
 
-    // 3. CAS NORMAL : Afficher un accord (le code que vous aviez déjà)
-    const selectedVoicings = voicings[chordSelector.value];
-    if (!selectedVoicings) return;
+    // 2. Réinitialiser toutes les notes
+    allNoteElements.forEach(n => n.classList.remove("active", "root"));
 
-    const selectedPosition = selectedVoicings[positionSelector.value];
-    if (!selectedPosition) return;
+    // 3. Gérer les cas spécifiques
+    if (selectedValue === 'all-notes') {
+      allNoteElements.forEach(n => n.classList.add('active'));
+      return;
+    }
 
-    selectedPosition.f.forEach(note => {
-      const element = fretboardContainer.querySelector(`.note[data-s="${note.s - 1}"][data-f="${note.f}"]`);
-      if (element) {
-        element.classList.add("active");
-        if (note.r) element.classList.add("root");
-      }
-    });
+    // 4. Gérer l'affichage d'un accord normal
+    if (isRealChord) {
+      const selectedVoicings = voicings[selectedValue];
+      if (!selectedVoicings) return;
+
+      const selectedPosition = selectedVoicings[positionSelector.value];
+      if (!selectedPosition) return;
+
+      selectedPosition.f.forEach(note => {
+        const element = fretboardContainer.querySelector(`.note[data-s="${note.s - 1}"][data-f="${note.f}"]`);
+        if (element) {
+          element.classList.add("active");
+          if (note.r) element.classList.add("root");
+        }
+      });
+    }
   }
 
-  // ... (Les gestionnaires d'événements et l'initialisation ne changent pas) ...
+  // ================== GESTIONNAIRES D'ÉVÉNEMENTS ==================
   chordSelector.addEventListener('change', () => {
     positionSelector.innerHTML = '';
+    if (chordSelector.value === 'all-notes' || chordSelector.value === '') {
+        positionSelector.style.display = 'none';
+    } else {
+        positionSelector.style.display = 'block';
+    }
     const selectedVoicings = voicings[chordSelector.value];
     if (!selectedVoicings) {
       renderChord();
@@ -104,12 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   positionSelector.addEventListener('change', renderChord);
 
+  // ================== INITIALISATION ==================
   generateFretboard();
   populateChordSelector();
-  // === LES 2 LIGNES AJOUTÉES SONT ICI ===
-  // 1. On définit la valeur du sélecteur sur "all-notes" par défaut.
   chordSelector.value = 'all-notes';
-
-  // 2. On appelle manuellement la fonction d'affichage pour que le changement soit pris en compte.
   chordSelector.dispatchEvent(new Event('change'));
 });
