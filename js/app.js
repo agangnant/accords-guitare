@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const muteButton = document.getElementById("mute-button");
 
   let isMuted = false;
+  let isAudioUnlocked = false; // Notre nouveau drapeau pour savoir si le son est débloqué
 
   const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
   const NOTE_CLASSES = { C: "c", "C#": "cs", D: "d", "D#": "ds", E: "e", F: "f", "F#": "fs", G: "g", "G#": "gs", A: "a", "A#": "as", B: "b" };
@@ -43,13 +44,26 @@ document.addEventListener('DOMContentLoaded', () => {
     return 440 * Math.pow(2, (midiNote - 69) / 12);
   }
 
-  // === MODIFIÉ : La fonction playNote gère maintenant elle-même le déblocage ===
-  function playNote(midiNote, duration, waveform) {
-    // On débloque le contexte audio si nécessaire. C'est la première chose à faire.
+   // === NOUVEAU : La fonction qui force le déblocage audio sur iOS ===
+  function unlockAudio() {
+    if (isAudioUnlocked) return; // Ne s'exécute qu'une seule fois
+
+    // On crée un son complètement vide et silencieux
+    const buffer = audioCtx.createBuffer(1, 1, 22050);
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioCtx.destination);
+    source.start(0);
+
+    // On s'assure que le contexte est bien en cours d'exécution
     if (audioCtx.state === 'suspended') {
       audioCtx.resume();
     }
 
+    isAudioUnlocked = true; // On met le drapeau à jour
+  }
+
+  function playNote(midiNote, duration, waveform) {
     if (isMuted) return;
 
     const frequency = midiToFrequency(midiNote);
@@ -67,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     oscillator.stop(audioCtx.currentTime + duration);
   }
 
-  // === SIMPLIFIÉ : On retire la fonction unlockAudio et son appel ===
+  // === MODIFIÉ : On appelle notre fonction de déblocage au premier clic ===
   function addSoundToNotes() {
     const eventType = ('ontouchend' in document) ? 'touchend' : 'click';
 
@@ -76,33 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         event.stopPropagation();
 
-        const stringIndex = parseInt(noteElement.dataset.s);
-        const fretNumber = parseInt(noteElement.dataset.f);
-        const midiNote = TUNING[stringIndex] + fretNumber;
-        const waveform = waveformSelector.value;
-        const duration = parseFloat(durationSelector.value);
+        // On débloque le son au tout premier tap
+        unlockAudio();
 
-        playNote(midiNote, duration, waveform);
-      });
-    });
-  }
-
-  // === MODIFIÉ POUR LE TEST VISUEL ===
-  function addSoundToNotes() {
-    const eventType = ('ontouchend' in document) ? 'touchend' : 'click';
-
-    allNoteElements.forEach(noteElement => {
-      noteElement.addEventListener(eventType, (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        // === TEST VISUEL : On ajoute la classe de débogage immédiatement ===
+        // On retire la classe de débogage (on peut la laisser pour le test)
         noteElement.classList.add('debug-tapped');
-
-        // Le reste de la logique pour le son
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
 
         const stringIndex = parseInt(noteElement.dataset.s);
         const fretNumber = parseInt(noteElement.dataset.f);
