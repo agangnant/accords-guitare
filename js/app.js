@@ -2,8 +2,11 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  const audioCtx = new AudioContext();
+//   const AudioContext = window.AudioContext || window.webkitAudioContext;
+//   const audioCtx = new AudioContext();
+
+  // === MODIFIÉ : On ne crée PAS le contexte audio tout de suite ===
+  let audioCtx = null;
 
   const chordSelector = document.getElementById("chord");
   const positionSelector = document.getElementById("position");
@@ -44,27 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return 440 * Math.pow(2, (midiNote - 69) / 12);
   }
 
-   // === NOUVEAU : La fonction qui force le déblocage audio sur iOS ===
-  function unlockAudio() {
-    if (isAudioUnlocked) return; // Ne s'exécute qu'une seule fois
 
-    // On crée un son complètement vide et silencieux
-    const buffer = audioCtx.createBuffer(1, 1, 22050);
-    const source = audioCtx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioCtx.destination);
-    source.start(0);
-
-    // On s'assure que le contexte est bien en cours d'exécution
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-
-    isAudioUnlocked = true; // On met le drapeau à jour
-  }
-
-  function playNote(midiNote, duration, waveform) {
-    if (isMuted) return;
+    function playNote(midiNote, duration, waveform) {
+    // Sécurité : si le contexte n'est pas prêt ou si le son est coupé, on ne fait rien.
+    if (!audioCtx || audioCtx.state !== 'running' || isMuted) return;
 
     const frequency = midiToFrequency(midiNote);
     if (!frequency) return;
@@ -81,21 +67,28 @@ document.addEventListener('DOMContentLoaded', () => {
     oscillator.stop(audioCtx.currentTime + duration);
   }
 
-  // === MODIFIÉ : On appelle notre fonction de déblocage au premier clic ===
+  // === MODIFIÉ : La logique la plus robuste pour le son ===
   function addSoundToNotes() {
     const eventType = ('ontouchend' in document) ? 'touchend' : 'click';
 
     allNoteElements.forEach(noteElement => {
-      noteElement.addEventListener(eventType, (event) => {
+      // On rend la fonction de l'écouteur "async" pour pouvoir utiliser "await"
+      noteElement.addEventListener(eventType, async (event) => {
         event.preventDefault();
         event.stopPropagation();
 
-        // On débloque le son au tout premier tap
-        unlockAudio();
+        // 1. Si c'est le tout premier tap, on crée le contexte audio
+        if (!audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AudioContext();
+        }
 
-        // On retire la classe de débogage (on peut la laisser pour le test)
-        noteElement.classList.add('debug-tapped');
+        // 2. Si le contexte est "endormi", on le réveille et ON ATTEND qu'il soit prêt
+        if (audioCtx.state === 'suspended') {
+          await audioCtx.resume();
+        }
 
+        // 3. Maintenant qu'on est sûr que le son est débloqué, on joue la note
         const stringIndex = parseInt(noteElement.dataset.s);
         const fretNumber = parseInt(noteElement.dataset.f);
         const midiNote = TUNING[stringIndex] + fretNumber;
@@ -106,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
 
 
   function populateChordSelector() {
