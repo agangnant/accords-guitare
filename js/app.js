@@ -24,27 +24,30 @@ document.addEventListener('DOMContentLoaded', () => {
   let allNoteElements = [];
 
 
-    function setupAudioUnlockUX() {
+
+
+  function setupAudioUnlockUX() {
     const button = document.getElementById('unlock-audio');
 
-    button.addEventListener('click', async () => {
-        if (!audioCtx) {
+    button.addEventListener('click', () => {
+      if (!audioCtx) {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();
-        }
+      }
 
-        if (audioCtx.state === 'suspended') {
-        await audioCtx.resume();
-        }
+      // ✅ PAS de await sur iOS
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
 
-        if (audioCtx.state === 'running') {
+      if (audioCtx.state === 'running') {
         isAudioUnlocked = true;
-        button.textContent = '✅ Son activé';
-        button.disabled = true;
-        button.style.opacity = '0.6';
-        }
+        button.style.display = 'none';
+      }
     });
-    }
+  }
+
+
 
   function generateFretboard() {
     let html = '';
@@ -91,41 +94,47 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-    function addSoundToNotes() {
-    const unlockAndPlay = async (noteElement, event) => {
-        event.preventDefault();
-        event.stopPropagation();
+  function addSoundToNotes() {
+    const unlockAndPlay = (noteElement, event) => {
+      event.preventDefault();
+      event.stopPropagation();
 
-        if (!audioCtx) {
+      if (!audioCtx) {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();
-        }
+      }
 
-        if (audioCtx.state === 'suspended') {
-        await audioCtx.resume();
-        }
+      // ✅ PAS de await ici
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
 
-        if (audioCtx.state !== 'running') return;
+      if (audioCtx.state !== 'running') return;
 
-        const stringIndex = parseInt(noteElement.dataset.s);
-        const fretNumber = parseInt(noteElement.dataset.f);
-        const midiNote = TUNING[stringIndex] + fretNumber;
+      const stringIndex = parseInt(noteElement.dataset.s);
+      const fretNumber = parseInt(noteElement.dataset.f);
+      const midiNote = TUNING[stringIndex] + fretNumber;
 
-        playNote(
+      playNote(
         midiNote,
         parseFloat(durationSelector.value),
         waveformSelector.value
-        );
+      );
     };
 
     allNoteElements.forEach(noteElement => {
-        // ✅ CRITIQUE : touchstart pour iOS
-        noteElement.addEventListener('touchstart', e => unlockAndPlay(noteElement, e), { passive:false });
+      noteElement.addEventListener(
+        'touchstart',
+        e => unlockAndPlay(noteElement, e),
+        { passive:false }
+      );
 
-        // ✅ click pour desktop
-        noteElement.addEventListener('click', e => unlockAndPlay(noteElement, e));
+      noteElement.addEventListener(
+        'click',
+        e => unlockAndPlay(noteElement, e)
+      );
     });
-    }
+  }
 
 
 
