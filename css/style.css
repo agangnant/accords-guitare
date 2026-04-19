@@ -1,4 +1,4 @@
-/* css/style.css (version corrigée et finale) */
+/* css/style.css (version finale avec le correctif iOS) */
 
 * {
   box-sizing: border-box;
@@ -89,20 +89,18 @@ select {
   transform: scale(.85);
   transition: opacity 0.2s ease-in-out;
   cursor: pointer;
+  touch-action: manipulation; /* === LA LIGNE MAGIQUE EST ICI === */
 }
 
-/* Quand un accord est affiché, on rend toutes les notes "fantômes" par défaut */
 .fretboard.chord-active .note {
-  opacity: 0.07;
+  opacity: 0.05;
 }
 
-/* On rend la règle pour les notes actives PLUS SPÉCIFIQUE pour qu'elle gagne la priorité */
 .fretboard.chord-active .note.active {
   opacity: 1;
   transform: scale(1);
 }
 
-/* On garde aussi l'ancienne règle pour le mode "Toutes les notes" */
 .note.active {
   opacity: 1;
   transform: scale(1);
@@ -122,28 +120,15 @@ select {
 .a { background: #8e44ad; } .as { background: #d7bde2; }
 .b { background: #7f8c8d; }
 
-
 /* ================== CONTROLES AUDIO ================== */
 .sound-controls {
-  display: flex;         /* Met les deux sélecteurs côte à côte */
-  gap: 1rem;             /* Ajoute un espace entre eux */
-  margin-top: 1.5rem;    /* Ajoute un espace au-dessus, pour séparer du manche */
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
-/* Fait en sorte que chaque contrôle prenne la moitié de l'espace disponible */
 .sound-controls > div {
   flex: 1;
-}
-
-#mute-button {
-  width: 100%;
-  height: 41px; /* Même hauteur que les autres sélecteurs */
-  font-size: 1.2rem;
-  padding: 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f8f8f8;
-  cursor: pointer;
 }
 
 label {
@@ -152,4 +137,15 @@ label {
   color: #555;
   margin-bottom: 4px;
   margin-left: 2px;
+}
+
+#mute-button {
+  width: 100%;
+  height: 41px;
+  font-size: 1.2rem;
+  padding: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  cursor: pointer;
 }
