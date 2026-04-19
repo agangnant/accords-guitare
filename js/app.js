@@ -43,8 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
     return 440 * Math.pow(2, (midiNote - 69) / 12);
   }
 
+  // === MODIFIÉ : La fonction playNote gère maintenant elle-même le déblocage ===
   function playNote(midiNote, duration, waveform) {
-    if (isMuted || audioCtx.state === 'suspended') return; // Sécurité supplémentaire
+    // On débloque le contexte audio si nécessaire. C'est la première chose à faire.
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+
+    if (isMuted) return;
 
     const frequency = midiToFrequency(midiNote);
     if (!frequency) return;
@@ -61,28 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
     oscillator.stop(audioCtx.currentTime + duration);
   }
 
-  // === MODIFIÉ : Logique d'activation audio plus robuste pour iOS ===
+  // === SIMPLIFIÉ : On retire la fonction unlockAudio et son appel ===
   function addSoundToNotes() {
-    // On détermine l'événement le plus approprié : 'touchend' pour les tactiles, 'click' sinon.
-    const unlockEvent = ('ontouchend' in document) ? 'touchend' : 'click';
-
-    const unlockAudio = () => {
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume().then(() => {
-          // Le son est maintenant débloqué !
-          document.body.removeEventListener(unlockEvent, unlockAudio);
-        });
-      } else {
-        // Le son était déjà débloqué, on nettoie l'écouteur.
-        document.body.removeEventListener(unlockEvent, unlockAudio);
-      }
-    };
-
-    document.body.addEventListener(unlockEvent, unlockAudio);
+    const eventType = ('ontouchend' in document) ? 'touchend' : 'click';
 
     allNoteElements.forEach(noteElement => {
-      noteElement.addEventListener(unlockEvent, (event) => {
-        // Empêche le clic de se propager et de déclencher d'autres événements
+      noteElement.addEventListener(eventType, (event) => {
         event.preventDefault();
         event.stopPropagation();
 
@@ -91,10 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const midiNote = TUNING[stringIndex] + fretNumber;
         const waveform = waveformSelector.value;
         const duration = parseFloat(durationSelector.value);
+
         playNote(midiNote, duration, waveform);
       });
     });
   }
+
 
   function populateChordSelector() {
     const chordGroups = {
