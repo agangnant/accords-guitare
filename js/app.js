@@ -23,6 +23,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const TUNING = [64, 59, 55, 50, 45, 40];
   let allNoteElements = [];
 
+
+    function setupAudioUnlockUX() {
+    const button = document.getElementById('unlock-audio');
+
+    button.addEventListener('click', async () => {
+        if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+        }
+
+        if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+        }
+
+        if (audioCtx.state === 'running') {
+        isAudioUnlocked = true;
+        button.textContent = '✅ Son activé';
+        button.disabled = true;
+        button.style.opacity = '0.6';
+        }
+    });
+    }
+
   function generateFretboard() {
     let html = '';
     html += '<div></div>';
@@ -194,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
   generateFretboard();
   populateChordSelector();
   addSoundToNotes();
+  setupAudioUnlockUX();
   chordSelector.value = 'all-notes';
   chordSelector.dispatchEvent(new Event('change'));
 });
