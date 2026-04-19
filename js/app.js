@@ -47,7 +47,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const handler = () => {
       if (!audioCtx) unlockIOSAudio();
+
+
+      // ✅ on cache le bouton
       button.style.display = 'none';
+
+      // ✅ on supprime le message iOS
+    //   document.querySelector('.ios-hint')?.remove();
+
     };
 
     button.addEventListener('touchstart', handler, { passive:true });
