@@ -154,3 +154,15 @@ label {
 .note.debug-tapped {
   border: 3px solid limegreen !important;
 }
+
+
+.unlock-audio {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f8f8f8;
+  cursor: pointer;
+}

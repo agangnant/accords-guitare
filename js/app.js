@@ -67,38 +67,43 @@ document.addEventListener('DOMContentLoaded', () => {
     oscillator.stop(audioCtx.currentTime + duration);
   }
 
-  // === MODIFIÉ : La logique la plus robuste pour le son ===
-  function addSoundToNotes() {
-    const eventType = ('ontouchend' in document) ? 'touchend' : 'click';
 
-    allNoteElements.forEach(noteElement => {
-      // On rend la fonction de l'écouteur "async" pour pouvoir utiliser "await"
-      noteElement.addEventListener(eventType, async (event) => {
+    function addSoundToNotes() {
+    const unlockAndPlay = async (noteElement, event) => {
         event.preventDefault();
         event.stopPropagation();
 
-        // 1. Si c'est le tout premier tap, on crée le contexte audio
         if (!audioCtx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          audioCtx = new AudioContext();
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
         }
 
-        // 2. Si le contexte est "endormi", on le réveille et ON ATTEND qu'il soit prêt
         if (audioCtx.state === 'suspended') {
-          await audioCtx.resume();
+        await audioCtx.resume();
         }
 
-        // 3. Maintenant qu'on est sûr que le son est débloqué, on joue la note
+        if (audioCtx.state !== 'running') return;
+
         const stringIndex = parseInt(noteElement.dataset.s);
         const fretNumber = parseInt(noteElement.dataset.f);
         const midiNote = TUNING[stringIndex] + fretNumber;
-        const waveform = waveformSelector.value;
-        const duration = parseFloat(durationSelector.value);
 
-        playNote(midiNote, duration, waveform);
-      });
+        playNote(
+        midiNote,
+        parseFloat(durationSelector.value),
+        waveformSelector.value
+        );
+    };
+
+    allNoteElements.forEach(noteElement => {
+        // ✅ CRITIQUE : touchstart pour iOS
+        noteElement.addEventListener('touchstart', e => unlockAndPlay(noteElement, e), { passive:false });
+
+        // ✅ click pour desktop
+        noteElement.addEventListener('click', e => unlockAndPlay(noteElement, e));
     });
-  }
+    }
+
 
 
 
