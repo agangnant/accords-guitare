@@ -1,15 +1,25 @@
-/* css/style.css (version mise à jour pour un affichage plus étroit) */
+/* css/style.css (version finale corrigée pour le centrage) */
+
+/* ================== RÈGLE FONDAMENTALE ================== */
+/* Applique un modèle de boîte plus intuitif à tous les éléments.
+   Cela empêche le padding d'ajouter de la largeur et de causer des débordements. */
+* {
+  box-sizing: border-box;
+}
 
 /* ================== GLOBAL ================== */
 body {
-  margin: 0;
-  padding: 0.5rem; /* MODIFIÉ : Un peu moins de marge pour gagner de la place */
+  margin: 0; /* MODIFIÉ : On supprime toute marge/padding par défaut */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
   background: #f4f4f9;
 }
 
 .container {
-  max-width: 100%;
+  /* MODIFIÉ : On utilise la marge pour centrer et espacer le conteneur */
+  margin: 1rem auto;
+  width: 95%; /* MODIFIÉ : On s'assure qu'il y a toujours un petit espace sur les côtés */
+  max-width: 500px; /* Limite la largeur sur les très grands écrans (tablettes, etc.) */
+
   background: #fff;
   padding: 1rem;
   border-radius: 12px;
@@ -19,7 +29,7 @@ body {
 h1 {
   text-align: center;
   font-size: 1.2rem;
-  margin-top: 0; /* MODIFIÉ */
+  margin-top: 0;
   margin-bottom: 1rem;
 }
 
@@ -45,20 +55,20 @@ select {
 
 .fretboard {
   display: grid;
-  /* === LA MODIFICATION PRINCIPALE EST ICI === */
-  grid-template-columns: 24px repeat(6, 40px); /* MODIFIÉ : Colonnes plus étroites */
-  gap: 5px; /* MODIFIÉ : Espacement réduit */
+  grid-template-columns: 24px repeat(6, 40px);
+  gap: 5px;
+  margin: 0 auto; /* MODIFIÉ : On centre le manche lui-même dans son conteneur */
 }
 
 .cell {
-  height: 30px; /* MODIFIÉ : Hauteur de cellule réduite */
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .fret-number {
-  font-size: 0.7em; /* MODIFIÉ : Un peu plus petit */
+  font-size: 0.7em;
   color: #777;
   display: flex;
   align-items: center;
@@ -66,7 +76,7 @@ select {
 }
 
 .fret-row {
-  border-bottom: 2px solid #ccc; /* MODIFIÉ : Lignes plus discrètes */
+  border-bottom: 2px solid #ccc;
 }
 
 .nut {
@@ -75,14 +85,14 @@ select {
 
 /* ================== NOTES ================== */
 .note {
-  width: 24px;   /* MODIFIÉ : Notes plus petites */
-  height: 24px;  /* MODIFIÉ : Notes plus petites */
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 0.65em; /* MODIFIÉ : Texte dans la note plus petit */
+  font-size: 0.65em;
   opacity: .15;
   transform: scale(.85);
   transition: .2s;
