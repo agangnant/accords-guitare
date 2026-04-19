@@ -1,14 +1,11 @@
+/* css/style.css (version mise à jour pour un affichage plus étroit) */
+
 /* ================== GLOBAL ================== */
 body {
   margin: 0;
-  padding: 1rem;
+  padding: 0.5rem; /* MODIFIÉ : Un peu moins de marge pour gagner de la place */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
   background: #f4f4f9;
-  /* Réduction pour l'affichage mobile */
-  transform: scale(0.95);
-  transform-origin: top left;
-  width: 105.26%;
-  overflow-x: hidden;
 }
 
 .container {
@@ -22,6 +19,7 @@ body {
 h1 {
   text-align: center;
   font-size: 1.2rem;
+  margin-top: 0; /* MODIFIÉ */
   margin-bottom: 1rem;
 }
 
@@ -36,7 +34,7 @@ h1 {
 select {
   width: 100%;
   padding: 10px;
-  font-size: 16px; /* Empêche le zoom sur iOS */
+  font-size: 16px;
 }
 
 /* ================== MANCHE ================== */
@@ -47,21 +45,20 @@ select {
 
 .fretboard {
   display: grid;
-  /* === LA CORRECTION EST ICI === */
-  /* On définit une grille de 7 colonnes : 1 pour les numéros + 6 pour les cordes */
-  grid-template-columns: 32px repeat(6, 48px);
-  gap: 6px;
+  /* === LA MODIFICATION PRINCIPALE EST ICI === */
+  grid-template-columns: 24px repeat(6, 40px); /* MODIFIÉ : Colonnes plus étroites */
+  gap: 5px; /* MODIFIÉ : Espacement réduit */
 }
 
 .cell {
-  height: 36px;
+  height: 30px; /* MODIFIÉ : Hauteur de cellule réduite */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .fret-number {
-  font-size: 0.75em;
+  font-size: 0.7em; /* MODIFIÉ : Un peu plus petit */
   color: #777;
   display: flex;
   align-items: center;
@@ -69,7 +66,7 @@ select {
 }
 
 .fret-row {
-  border-bottom: 2px solid #999;
+  border-bottom: 2px solid #ccc; /* MODIFIÉ : Lignes plus discrètes */
 }
 
 .nut {
@@ -78,14 +75,14 @@ select {
 
 /* ================== NOTES ================== */
 .note {
-  width: 28px;
-  height: 28px;
+  width: 24px;   /* MODIFIÉ : Notes plus petites */
+  height: 24px;  /* MODIFIÉ : Notes plus petites */
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 0.7em;
+  font-size: 0.65em; /* MODIFIÉ : Texte dans la note plus petit */
   opacity: .15;
   transform: scale(.85);
   transition: .2s;
@@ -101,7 +98,7 @@ select {
   transform: scale(1.15);
 }
 
-/* Couleurs */
+/* Couleurs (inchangées) */
 .c { background: #e74c3c; } .cs { background: #f5b7b1; }
 .d { background: #e67e22; } .ds { background: #f5cba7; }
 .e { background: #f1c40f; }
