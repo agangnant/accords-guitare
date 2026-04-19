@@ -35,30 +35,52 @@
   <div class="container">
     <h1>Accords guitare</h1>
 
+    <!-- Les contrôles principaux restent en haut -->
     <div class="controls">
       <select id="chord">
-        <option value="all-notes">Toutes les notes</option> <!-- NOUVELLE LIGNE -->
         <option value="">— Accord —</option>
-
+        <option value="all-notes">Toutes les notes</option>
       </select>
 
       <select id="position"></select>
     </div>
+
+    <!-- Le manche de guitare -->
     <div class="fretboard-wrapper">
       <div class="fretboard" id="fretboard"></div>
     </div>
+
+    <!-- === LES CONTRÔLES DU SON SONT MAINTENANT ICI === -->
+    <div class="sound-controls">
+      <div>
+        <label for="waveform-type">Type de son</label>
+      <select id="waveform-type">
+        <option value="sine" selected>Pur (Flûte)</option>
+        <option value="triangle">Doux (Piano Électrique)</option>
+        <option value="sawtooth">Synthé (Classique)</option>
+        <option value="square">Rétro (8-bit)</option>
+      </select>
+      </div>
+
+      <div>
+        <label for="note-duration">Durée de la note</label>
+        <select id="note-duration">
+          <option value="0.2">Courte</option>
+          <option value="0.5" selected>Moyenne</option>
+          <option value="1">Longue</option>
+        </select>
+      </div>
+      <!-- === NOUVEAU BOUTON MUTE CI-DESSOUS === -->
+      <div>
+        <label>Son</label>
+        <button id="mute-button">🔊</button>
+      </div>
+    </div>
+    <!-- === FIN DES CONTRÔLES DU SON === -->
+
   </div>
 
-  <!-- ================================================== -->
-  <!--                SCRIPTS JAVASCRIPT                -->
-  <!-- L'ordre est crucial : d'abord les données, puis la logique. -->
-  <!-- ================================================== -->
-
-  <!-- 1. CHARGEMENT DES DONNÉES -->
   <script src="data/voicings.js"></script>
-
-  <!-- 2. CHARGEMENT DE LA LOGIQUE DE L'APPLICATION -->
   <script src="js/app.js"></script>
 </body>
-
 </html>

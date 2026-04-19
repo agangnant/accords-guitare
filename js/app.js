@@ -1,16 +1,31 @@
-// js/app.js (version corrigée et finale)
+// js/app.js (version avec contrôles audio)
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const audioCtx = new AudioContext();
+
+  const NOTE_FREQUENCIES = {
+    'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13, 'E': 329.63,
+    'F': 349.23, 'F#': 369.99, 'G': 392.00, 'G#': 415.30, 'A': 440.00,
+    'A#': 466.16, 'B': 493.88
+  };
+
+  // === On récupère les nouveaux sélecteurs ===
   const chordSelector = document.getElementById("chord");
   const positionSelector = document.getElementById("position");
   const fretboardContainer = document.getElementById("fretboard");
+  const waveformSelector = document.getElementById("waveform-type");
+  const durationSelector = document.getElementById("note-duration");
+  const muteButton = document.getElementById("mute-button"); // <-- On récupère le bouton
+
+  let isMuted = false; // <-- Notre variable d'état pour le mute
   const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
   const NOTE_CLASSES = { C: "c", "C#": "cs", D: "d", "D#": "ds", E: "e", F: "f", "F#": "fs", G: "g", "G#": "gs", A: "a", "A#": "as", B: "b" };
   const TUNING = [40, 45, 50, 55, 59, 64];
   let allNoteElements = [];
 
-  function generateFretboard() {
+  function generateFretboard() { /* ...code identique... */
     let html = '';
     html += '<div></div>';
     for (let s = 5; s >= 0; s--) {
@@ -28,7 +43,49 @@ document.addEventListener('DOMContentLoaded', () => {
     allNoteElements = [...fretboardContainer.querySelectorAll(".note")];
   }
 
-  function populateChordSelector() {
+  // === MODIFIÉ : La fonction accepte maintenant la durée et le type d'onde ===
+  function playNote(noteName, duration, waveform) {
+    if (isMuted) return; // Si le son est coupé, on ne fait rien.
+
+    const frequency = NOTE_FREQUENCIES[noteName];
+    if (!frequency) return;
+
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.type = waveform;
+    oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + duration);
+  }
+
+  // === MODIFIÉ : On lit les valeurs des nouveaux contrôles avant de jouer le son ===
+  function addSoundToNotes() {
+    const resumeAudio = () => {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      document.removeEventListener('click', resumeAudio);
+    };
+    document.addEventListener('click', resumeAudio);
+
+    allNoteElements.forEach(noteElement => {
+      noteElement.addEventListener('click', () => {
+        const noteName = noteElement.textContent;
+
+        // On récupère les valeurs actuelles des contrôles
+        const waveform = waveformSelector.value;
+        const duration = parseFloat(durationSelector.value); // parseFloat convertit le texte "0.5" en nombre 0.5
+
+        playNote(noteName, duration, waveform);
+      });
+    });
+  }
+
+  function populateChordSelector() { /* ...code identique... */
     const chordGroups = {
       "Accords Majeurs": { chords: ["C", "D", "E", "F", "G", "A", "B"] },
       "Accords Mineurs": { chords: ["Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm"] },
@@ -55,35 +112,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ================== LOGIQUE D'AFFICHAGE (CORRIGÉE) ==================
-  function renderChord() {
+  function renderChord() { /* ...code identique... */
     const selectedValue = chordSelector.value;
     const isRealChord = selectedValue && selectedValue !== 'all-notes';
-
-    // 1. Gérer la classe d'état sur le manche
     if (isRealChord) {
       fretboardContainer.classList.add('chord-active');
     } else {
       fretboardContainer.classList.remove('chord-active');
     }
-
-    // 2. Réinitialiser toutes les notes
     allNoteElements.forEach(n => n.classList.remove("active", "root"));
-
-    // 3. Gérer les cas spécifiques
     if (selectedValue === 'all-notes') {
       allNoteElements.forEach(n => n.classList.add('active'));
       return;
     }
-
-    // 4. Gérer l'affichage d'un accord normal
     if (isRealChord) {
       const selectedVoicings = voicings[selectedValue];
       if (!selectedVoicings) return;
-
       const selectedPosition = selectedVoicings[positionSelector.value];
       if (!selectedPosition) return;
-
       selectedPosition.f.forEach(note => {
         const element = fretboardContainer.querySelector(`.note[data-s="${note.s - 1}"][data-f="${note.f}"]`);
         if (element) {
@@ -94,8 +140,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ================== GESTIONNAIRES D'ÉVÉNEMENTS ==================
-  chordSelector.addEventListener('change', () => {
+    // === NOUVEAU : On ajoute l'écouteur pour le bouton Mute ===
+  muteButton.addEventListener('click', () => {
+    isMuted = !isMuted; // On inverse l'état (true -> false, false -> true)
+    muteButton.textContent = isMuted ? '🔇' : '🔊'; // On change l'icône
+  });
+
+  chordSelector.addEventListener('change', () => { /* ...code identique... */
     positionSelector.innerHTML = '';
     if (chordSelector.value === 'all-notes' || chordSelector.value === '') {
         positionSelector.style.display = 'none';
@@ -119,9 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   positionSelector.addEventListener('change', renderChord);
 
-  // ================== INITIALISATION ==================
   generateFretboard();
   populateChordSelector();
+  addSoundToNotes();
   chordSelector.value = 'all-notes';
   chordSelector.dispatchEvent(new Event('change'));
 });

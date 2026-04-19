@@ -88,6 +88,7 @@ select {
   opacity: .15;
   transform: scale(.85);
   transition: opacity 0.2s ease-in-out;
+  cursor: pointer;
 }
 
 /* Quand un accord est affiché, on rend toutes les notes "fantômes" par défaut */
@@ -120,3 +121,35 @@ select {
 .g { background: #3498db; } .gs { background: #aed6f1; }
 .a { background: #8e44ad; } .as { background: #d7bde2; }
 .b { background: #7f8c8d; }
+
+
+/* ================== CONTROLES AUDIO ================== */
+.sound-controls {
+  display: flex;         /* Met les deux sélecteurs côte à côte */
+  gap: 1rem;             /* Ajoute un espace entre eux */
+  margin-top: 1.5rem;    /* Ajoute un espace au-dessus, pour séparer du manche */
+}
+
+/* Fait en sorte que chaque contrôle prenne la moitié de l'espace disponible */
+.sound-controls > div {
+  flex: 1;
+}
+
+#mute-button {
+  width: 100%;
+  height: 41px; /* Même hauteur que les autres sélecteurs */
+  font-size: 1.2rem;
+  padding: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  cursor: pointer;
+}
+
+label {
+  display: block;
+  font-size: 0.8em;
+  color: #555;
+  margin-bottom: 4px;
+  margin-left: 2px;
+}
