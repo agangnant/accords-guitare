@@ -166,3 +166,16 @@ label {
   background: #f8f8f8;
   cursor: pointer;
 }
+
+
+.ios-hint {
+  font-size: 0.7rem;              /* plus petit */
+  color: #0b3c63;
+  background-color: #e8f2fb;      /* bleu très léger */
+  padding: 6px 8px;
+  border-radius: 6px;
+  margin: 0.5rem auto 1rem;
+  max-width: 90%;
+  text-align: center;
+  line-height: 1.3;
+}
