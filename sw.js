@@ -1,20 +1,28 @@
-const CACHE_NAME = 'accords-guitare-cache-v1';
-// IMPORTANT : Listez ici tous les fichiers que votre application utilise.
+// sw.js (version finale corrigée)
+
+// 1. On change le nom du cache pour forcer la mise à jour
+const CACHE_NAME = 'accords-guitare-cache-v2';
+
+// 2. ON AJOUTE TOUS LES NOUVEAUX FICHIERS ICI
 const urlsToCache = [
   '/',
   'index.html',
   'manifest.json',
+  'css/style.css',      // <-- AJOUTÉ
+  'js/app.js',          // <-- AJOUTÉ
+  'data/voicings.js',   // <-- AJOUTÉ
   'icon-192.png',
   'icon-512.png'
-  // Si vous avez un fichier CSS, ajoutez-le ici, par exemple : 'style.css'
 ];
+
+// Le reste du code ne change pas, il est correct.
 
 // Étape d'installation : on ouvre le cache et on y met les fichiers.
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Cache ouvert');
+        console.log('Cache ouvert et mis à jour (v2)');
         return cache.addAll(urlsToCache);
       })
   );
@@ -33,5 +41,21 @@ self.addEventListener('fetch', event => {
         return fetch(event.request);
       }
     )
+  );
+});
+
+// Étape d'activation : on supprime les anciens caches
+self.addEventListener('activate', event => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
 });
