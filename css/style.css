@@ -149,3 +149,8 @@ label {
   background-color: #f8f8f8;
   cursor: pointer;
 }
+
+/* ================== STYLE DE DÉBOGAGE ================== */
+.note.debug-tapped {
+  border: 3px solid limegreen !important;
+}

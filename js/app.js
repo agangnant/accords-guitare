@@ -87,6 +87,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // === MODIFIÉ POUR LE TEST VISUEL ===
+  function addSoundToNotes() {
+    const eventType = ('ontouchend' in document) ? 'touchend' : 'click';
+
+    allNoteElements.forEach(noteElement => {
+      noteElement.addEventListener(eventType, (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        // === TEST VISUEL : On ajoute la classe de débogage immédiatement ===
+        noteElement.classList.add('debug-tapped');
+
+        // Le reste de la logique pour le son
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const stringIndex = parseInt(noteElement.dataset.s);
+        const fretNumber = parseInt(noteElement.dataset.f);
+        const midiNote = TUNING[stringIndex] + fretNumber;
+        const waveform = waveformSelector.value;
+        const duration = parseFloat(durationSelector.value);
+
+        playNote(midiNote, duration, waveform);
+      });
+    });
+  }
+
 
   function populateChordSelector() {
     const chordGroups = {
