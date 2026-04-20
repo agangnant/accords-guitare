@@ -63,33 +63,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
-
   function generateFretboard() {
-    let html = '';
-    html += '<div></div>';
-    for (let s = 5; s >= 0; s--) {
-      const midiNoteForDisplay = TUNING[5 - s];
-      const noteName = NOTES[midiNoteForDisplay % 12];
-      html += `<div class="cell nut"><div class="note ${NOTE_CLASSES[noteName]}" data-s="${s}" data-f="0">${noteName}</div></div>`;
-    }
-    for (let f = 1; f <= 12; f++) {
-      html += `<div class="fret-number">${f}</div>`;
+      let html = '';
+      html += '<div></div>'; // Espace pour les numéros de frette
+
+      // Génération du sillet (frette 0)
       for (let s = 5; s >= 0; s--) {
-        const midiNoteForDisplay = TUNING[5 - s];
-        const noteName = NOTES[(midiNoteForDisplay + f) % 12];
-        html += `<div class="cell fret-row"><div class="note ${NOTE_CLASSES[noteName]}" data-s="${s}" data-f="${f}">${noteName}</div></div>`;
+          // === CORRECTION ICI ===
+          const midiNoteForDisplay = TUNING[s];
+          const noteName = NOTES[midiNoteForDisplay % 12];
+          html += `<div class="cell nut"><div class="note ${NOTE_CLASSES[noteName]}" data-s="${s}" data-f="0">${noteName}</div></div>`;
       }
-    }
-    fretboardContainer.innerHTML = html;
-    allNoteElements = [...fretboardContainer.querySelectorAll(".note")];
+
+      // Génération des frettes 1 à 12
+      for (let f = 1; f <= 12; f++) {
+          html += `<div class="fret-number">${f}</div>`;
+          for (let s = 5; s >= 0; s--) {
+              // === CORRECTION ICI AUSSI ===
+              // On ajoute le numéro de la frette à la note de base de la corde
+              const midiNoteForDisplay = TUNING[s] + f;
+              const noteName = NOTES[midiNoteForDisplay % 12];
+              html += `<div class="cell fret-row"><div class="note ${NOTE_CLASSES[noteName]}" data-s="${s}" data-f="${f}">${noteName}</div></div>`;
+          }
+      }
+      fretboardContainer.innerHTML = html;
+      allNoteElements = [...fretboardContainer.querySelectorAll(".note")];
   }
-
-  function midiToFrequency(midiNote) {
-    return 440 * Math.pow(2, (midiNote - 69) / 12);
-  }
-
-
 
   function playNote(midiNote, duration, waveform) {
     if (!audioCtx || isMuted) return;
