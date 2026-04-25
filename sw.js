@@ -1,21 +1,17 @@
-// sw.js (version nettoyée sans les MP3)
-
-// On peut garder le même nom de cache ou passer à v4
+// sw.js
 const CACHE_NAME = 'accords-guitare-cache-v3';
 
 const urlsToCache = [
-  '/',
-  'index.html',
-  'manifest.json',
-  'css/style.css',
-  'js/app.js',
-  'data/voicings.js',
-  'icon-192.png',
-  'icon-512.png'
-  // Plus besoin des fichiers audio ici !
+  './', // CORRECTION CRUCIALE : './' au lieu de '/'
+  './index.html',
+  './manifest.json',
+  './css/style.css',
+  './js/app.js',
+  './data/voicings.js',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
-// ... (le reste du fichier sw.js ne change pas) ...
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -34,8 +30,7 @@ self.addEventListener('fetch', event => {
           return response;
         }
         return fetch(event.request);
-      }
-    )
+      })
   );
 });
 

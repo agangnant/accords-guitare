@@ -8,19 +8,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeToggle = document.getElementById('theme-toggle');
 
   // appliquer le thème sauvegardé
-  if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark');
-    themeToggle.textContent = '☀️';
-  }
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark');
+        themeToggle.textContent = '☀️';
+    } else {
+        themeToggle.textContent = '🌙'; // Initialisation
+    }
 
-  themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark');
-
-    const isDark = document.body.classList.contains('dark');
-    themeToggle.textContent = isDark ? '☀️' : '🌙';
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  });
-
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        themeToggle.textContent = isDark ? '☀️' : '🌙'; // Correction
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
 
   // === MODIFIÉ : On ne crée PAS le contexte audio tout de suite ===
   let audioCtx = null;
@@ -303,10 +303,11 @@ document.addEventListener('DOMContentLoaded', () => {
     playChord(voicing);
   });
 
-  muteButton.addEventListener('click', () => {
-    isMuted = !isMuted;
-    muteButton.textContent = isMuted ? '🔇' : '🔊';
-  });
+    muteButton.textContent = '🔊'; // Initialisation
+    muteButton.addEventListener('click', () => {
+        isMuted = !isMuted;
+        muteButton.textContent = isMuted ? '🔇' : '🔊'; // Correction
+    });
 
   let isUpdatingChord = false;
   chordSelector.addEventListener('change', () => {
