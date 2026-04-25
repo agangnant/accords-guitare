@@ -1,5 +1,5 @@
 // sw.js
-const CACHE_NAME = 'accords-guitare-cache-v4';
+const CACHE_NAME = 'accords-guitare-cache-v5';
 
 
 const urlsToCache = [
@@ -20,7 +20,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Cache ouvert et mis à jour (v4)');
+        console.log('Cache ouvert et mis à jour (v5)');
         return cache.addAll(urlsToCache);
       })
   );
