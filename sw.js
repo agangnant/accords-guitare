@@ -1,38 +1,43 @@
 // sw.js
-const CACHE_NAME = 'accords-guitare-cache-v3';
+const CACHE_NAME = 'accords-guitare-cache-v4';
+
 
 const urlsToCache = [
-  './', // CORRECTION CRUCIALE : './' au lieu de '/'
+  './',
   './index.html',
   './manifest.json',
   './css/style.css',
   './js/app.js',
+  './js/AudioEngine.js',
+  './js/Fretboard.js',
   './data/voicings.js',
   './icon-192.png',
   './icon-512.png'
 ];
 
+
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Cache ouvert et mis à jour (v3)');
+        console.log('Cache ouvert et mis à jour (v4)');
         return cache.addAll(urlsToCache);
       })
   );
 });
 
+
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
   );
 });
+
+
 
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
@@ -40,11 +45,11 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+          if (!cacheWhitelist.includes(cacheName)) {
             return caches.delete(cacheName);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });

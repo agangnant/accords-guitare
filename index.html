@@ -1,106 +1,113 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=0.95"> -->
 
-  <!-- La nouvelle balise viewport optimisée -->
-  <meta name="viewport" content="width=device-width, initial-scale=0.95">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1,
+                  maximum-scale=1, user-scalable=no">
 
-  <title>Visualiseur d'Accords</title>
 
-  <link rel="stylesheet" href="css/style.css">
-
-  <!-- ... le reste de votre head reste identique ... -->
-  <meta name="theme-color" content="#333333"/>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Accords">
-  <script>
-      if ('serviceWorker' in navigator) {
-          window.addEventListener('load', () => {
-              // CORRECTION CRUCIALE : Enlever le '/' au début du chemin
-              navigator.serviceWorker.register('sw.js').then(registration => {
-                  console.log('ServiceWorker enregistré avec succès: ', registration.scope);
-              }, err => {
-                  console.log('Échec de l\'enregistrement du ServiceWorker: ', err);
-              });
-          });
-      }
-  </script>
+    <title>Visualiseur d'Accords</title>
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="theme-color" content="#333333"/>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Accords">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    console.log('ServiceWorker enregistré avec succès: ', registration.scope);
+                }, err => {
+                    console.log('Échec de l\'enregistrement du ServiceWorker: ', err);
+                });
+            });
+        }
+    </script>
 </head>
-
 <body>
-  <div class="container">
-    <h1>Accords guitare</h1>
-    <button id="unlock-audio" class="unlock-audio">
-    🔊 Activer le son
-    </button>
+    <div class="container">
+        <h1>Accords guitare</h1>
+        <button id="unlock-audio" class="unlock-audio">🔊 Activer le son</button>
+        <p class="ios-hint">ℹ️ Sur iPhone, le mode silencieux coupe le son des notes</p>
 
-    <p class="ios-hint">
-      ℹ️ Sur iPhone, le mode silencieux coupe le son des notes
-    </p>
+        <div class="controls">
+            <select id="chord">
+                <option value="">— Filtrer par note —</option>
+                <option value="all-notes">Toutes les notes</option>
+            </select>
+            <select id="position"></select>
+            <label class="bass-mode-option">
+                <input type="checkbox" id="bass-mode-toggle">
+                🎸 Mode Basse (4 cordes)
+            </label>
+        </div>
 
-    <!-- Les contrôles principaux restent en haut -->
-    <div class="controls">
-      <select id="chord">
-        <option value="">— Accord —</option>
-        <option value="all-notes">Toutes les notes</option>
-      </select>
+        <div class="chord-play-tools">
+            <button id="play-chord" class="play-chord">▶︎</button>
+            <label class="autoplay-option">
+                <input type="checkbox" id="auto-play-chord"> Auto play
+            </label>
+        </div>
 
-      <select id="position"></select>
+        <!-- === NOUVEAUX CONTRÔLES DE FILTRE CI-DESSOUS === -->
+        <div id="note-filter-controls" class="note-filter-controls" style="display: none;">
+            <div class="note-filter-row">
+                <!-- On ajoute les classes de couleur ici -->
+                <button class="note-filter-btn c" data-note="C">C</button>
+                <button class="note-filter-btn d" data-note="D">D</button>
+                <button class="note-filter-btn e" data-note="E">E</button>
+                <button class="note-filter-btn f" data-note="F">F</button>
+                <button class="note-filter-btn g" data-note="G">G</button>
+                <button class="note-filter-btn a" data-note="A">A</button>
+                <button class="note-filter-btn b" data-note="B">B</button>
+            </div>
+            <div class="note-filter-row">
+                <button class="note-filter-btn cs" data-note="C#">C#</button>
+                <button class="note-filter-btn ds" data-note="D#">D#</button>
+                <button class="note-filter-btn fs" data-note="F#">F#</button>
+                <button class="note-filter-btn gs" data-note="G#">G#</button>
+                <button class="note-filter-btn as" data-note="A#">A#</button>
+            </div>
+        </div>
+<!-- === FIN DES NOUVEAUX CONTRÔLES === -->
+        <div class="fretboard-wrapper">
+            <div class="fretboard" id="fretboard"></div>
+        </div>
+
+        <div class="sound-controls">
+            <div>
+                <label for="waveform-type">Type de son</label>
+                <select id="waveform-type">
+                    <option value="sine">Pur (Flûte)</option>
+                    <option value="triangle" selected>Doux (Piano Électrique)</option>
+                    <option value="sawtooth">Synthé (Classique)</option>
+                    <option value="square">Rétro (8-bit)</option>
+                </select>
+            </div>
+            <div>
+                <label for="note-duration">Durée de la note</label>
+                <select id="note-duration">
+                    <option value="0.2">Courte</option>
+                    <option value="0.5" selected>Moyenne</option>
+                    <option value="1">Longue</option>
+                </select>
+            </div>
+            <div>
+                <label>Son</label>
+                <button id="mute-button">🔊</button>
+                <button id="theme-toggle" title="Mode sombre">🌙</button>
+            </div>
+        </div>
     </div>
-      <div class="chord-play-tools">
-        <button id="play-chord" class="play-chord">
-          ▶︎
-        </button>
 
-        <label class="autoplay-option">
-          <input type="checkbox" id="auto-play-chord">
-          Auto play
-        </label>
-    </div>
-
-
-    <!-- Le manche de guitare -->
-    <div class="fretboard-wrapper">
-      <div class="fretboard" id="fretboard"></div>
-    </div>
-
-    <!-- === LES CONTRÔLES DU SON SONT MAINTENANT ICI === -->
-    <div class="sound-controls">
-      <div>
-        <label for="waveform-type">Type de son</label>
-      <select id="waveform-type">
-        <option value="sine" >Pur (Flûte)</option>
-        <option value="triangle"selected>Doux (Piano Électrique)</option>
-        <option value="sawtooth">Synthé (Classique)</option>
-        <option value="square">Rétro (8-bit)</option>
-      </select>
-      </div>
-
-      <div>
-        <label for="note-duration">Durée de la note</label>
-        <select id="note-duration">
-          <option value="0.2">Courte</option>
-          <option value="0.5" selected>Moyenne</option>
-          <option value="1">Longue</option>
-        </select>
-      </div>
-      <!-- === NOUVEAU BOUTON MUTE CI-DESSOUS === -->
-      <div>
-        <label>Son</label>
-        <button id="mute-button">🔊</button>
-        <button id="theme-toggle" title="Mode sombre">🌙</button>
-      </div>
-    </div>
-    <!-- === FIN DES CONTRÔLES DU SON === -->
-
-  </div>
-
-  <script src="data/voicings.js"></script>
-  <script src="js/app.js"></script>
+    <script src="data/voicings.js"></script>
+    <script src="js/AudioEngine.js"></script>
+    <script src="js/Fretboard.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

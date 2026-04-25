@@ -285,3 +285,121 @@ body.dark #theme-toggle {
   border-color: #444;
   color: #eee;
 }
+
+/* ================== MARQUEURS DE FRETTE ================== */
+
+.fret-row.marked {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.fret-row.marked-octave {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* === NOUVELLE RÈGLE CI-DESSOUS === */
+/* On met en gras les numéros de frette qui ont la classe .marked ou .marked-octave */
+.fret-number.marked,
+.fret-number.marked-octave {
+    font-weight: bold;
+    color: #333; /* On peut aussi les rendre un peu plus foncés */
+}
+/* === FIN DE LA NOUVELLE RÈGLE === */
+
+
+/* On s'assure que ça marche aussi en thème sombre */
+body.dark .fret-row.marked {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+body.dark .fret-row.marked-octave {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* === NOUVELLE RÈGLE POUR LE THÈME SOMBRE CI-DESSOUS === */
+body.dark .fret-number.marked,
+body.dark .fret-number.marked-octave {
+    color: #ccc; /* Un peu plus clair en mode sombre */
+}
+/* === FIN DE LA NOUVELLE RÈGLE === */
+
+/* ================== MODE BASSE ================== */
+
+.bass-mode-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 8px;
+    cursor: pointer;
+    user-select: none; /* Empêche la sélection du texte au clic */
+}
+
+body.dark .bass-mode-option {
+    color: #bbb;
+}
+
+/* La classe qui sera ajoutée au manche pour masquer les cordes */
+.fretboard.bass-mode .cell[data-s="0"],
+.fretboard.bass-mode .cell[data-s="1"] {
+    display: none;
+}
+
+
+/* ================== FILTRE DE NOTES (NOUVEAU STYLE) ================== */
+.note-filter-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0.75rem 0;
+    padding-top: 0.75rem;
+    border-top: 1px solid #eee;
+}
+.note-filter-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+.note-filter-btn {
+    flex: 1;
+    max-width: 38px;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    font-size: 0.8em;
+    font-weight: 500;
+    border: 2px solid;
+    border-radius: 6px;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+.note-filter-btn:hover { transform: scale(1.08); }
+.note-filter-btn.c { border-color: #e74c3c; color: #e74c3c; }
+.note-filter-btn.cs { border-color: #f5b7b1; color: #f5b7b1; }
+.note-filter-btn.d { border-color: #e67e22; color: #e67e22; }
+.note-filter-btn.ds { border-color: #f5cba7; color: #f5cba7; }
+.note-filter-btn.e { border-color: #f1c40f; color: #f1c40f; }
+.note-filter-btn.f { border-color: #27ae60; color: #27ae60; }
+.note-filter-btn.fs { border-color: #abebc6; color: #abebc6; }
+.note-filter-btn.g { border-color: #3498db; color: #3498db; }
+.note-filter-btn.gs { border-color: #aed6f1; color: #aed6f1; }
+.note-filter-btn.a { border-color: #8e44ad; color: #8e44ad; }
+.note-filter-btn.as { border-color: #d7bde2; color: #d7bde2; }
+.note-filter-btn.b { border-color: #7f8c8d; color: #7f8c8d; }
+.note-filter-btn.active {
+    color: #fff !important;
+    transform: scale(1.1);
+}
+.note-filter-btn.c.active { background-color: #e74c3c; }
+.note-filter-btn.cs.active { background-color: #f5b7b1; color: #555 !important; }
+.note-filter-btn.d.active { background-color: #e67e22; }
+.note-filter-btn.ds.active { background-color: #f5cba7; color: #555 !important; }
+.note-filter-btn.e.active { background-color: #f1c40f; }
+.note-filter-btn.f.active { background-color: #27ae60; }
+.note-filter-btn.fs.active { background-color: #abebc6; color: #555 !important; }
+.note-filter-btn.g.active { background-color: #3498db; }
+.note-filter-btn.gs.active { background-color: #aed6f1; color: #555 !important; }
+.note-filter-btn.a.active { background-color: #8e44ad; }
+.note-filter-btn.as.active { background-color: #d7bde2; color: #555 !important; }
+.note-filter-btn.b.active { background-color: #7f8c8d; }
+body.dark .note-filter-controls { border-top-color: #333; }
