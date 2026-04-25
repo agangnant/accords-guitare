@@ -1,6 +1,22 @@
 const Fretboard = {
     container: null,
     allNoteElements: [],
+
+    SHARP_TO_FLAT: {
+        "C#": "Db",
+        "D#": "Eb",
+        "F#": "Gb",
+        "G#": "Ab",
+        "A#": "Bb"
+    },
+    FLAT_TO_SHARP: {
+        "Db": "C#",
+        "Eb": "D#",
+        "Gb": "F#",
+        "Ab": "G#",
+        "Bb": "A#"
+    },
+
     NOTES: ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
     NOTE_CLASSES: { C: "c", "C#": "cs", D: "d", "D#": "ds", E: "e", F: "f", "F#": "fs", G: "g", "G#": "gs", A: "a", "A#": "as", B: "b" },
     TUNING: [64, 59, 55, 50, 45, 40],
@@ -72,6 +88,20 @@ const Fretboard = {
         }
     },
 
+
+
+    updateNoteLabels(useFlats = false) {
+        this.allNoteElements.forEach(noteEl => {
+            const current = noteEl.textContent;
+
+            if (useFlats && this.SHARP_TO_FLAT[current]) {
+                noteEl.textContent = this.SHARP_TO_FLAT[current];
+            }
+            else if (!useFlats && this.FLAT_TO_SHARP[current]) {
+                noteEl.textContent = this.FLAT_TO_SHARP[current];
+            }
+        });
+    },
 
     renderFilteredNotes(notesToFilter) {
         // === NETTOYAGE ===

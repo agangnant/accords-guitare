@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bassModeToggle = document.getElementById('bass-mode-toggle');
     const noteFilterControls = document.getElementById('note-filter-controls');
     const noteFilterButtons = noteFilterControls.querySelectorAll('.note-filter-btn');
+    const enharmonicToggle = document.getElementById('enharmonic-toggle');
 
     let activeFilterNotes = [];
 
@@ -108,6 +109,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+
+    function updateFilterButtons(useFlats) {
+        noteFilterButtons.forEach(button => {
+            const current = button.dataset.note;
+
+            if (useFlats && Fretboard.SHARP_TO_FLAT[current]) {
+                const flat = Fretboard.SHARP_TO_FLAT[current];
+                button.dataset.note = flat;
+                button.textContent = flat;
+            }
+            else if (!useFlats && Fretboard.FLAT_TO_SHARP[current]) {
+                const sharp = Fretboard.FLAT_TO_SHARP[current];
+                button.dataset.note = sharp;
+                button.textContent = sharp;
+            }
+        });
+    }
+
     // --- 4. GESTION DES ÉVÉNEMENTS ---
     themeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark');
@@ -131,6 +150,20 @@ document.addEventListener('DOMContentLoaded', () => {
         addNoteClickEvents();
         chordSelector.dispatchEvent(new Event('change'));
     });
+
+
+
+    enharmonicToggle.addEventListener('change', () => {
+        const useFlats = enharmonicToggle.checked;
+
+        Fretboard.updateNoteLabels(useFlats);
+        updateFilterButtons(enharmonicToggle.checked);
+        updateFilterButtons(useFlats);
+
+        // Recalcule le filtre actif avec les nouveaux noms
+        Fretboard.renderFilteredNotes(activeFilterNotes);
+    });
+
 
     noteFilterButtons.forEach(button => {
         button.addEventListener('click', () => {

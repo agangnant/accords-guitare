@@ -35,24 +35,41 @@
         <button id="unlock-audio" class="unlock-audio">🔊 Activer le son</button>
         <p class="ios-hint">ℹ️ Sur iPhone, le mode silencieux coupe le son des notes</p>
 
-        <div class="controls">
-            <select id="chord">
-                <option value="">— Filtrer par note —</option>
-                <option value="all-notes">Toutes les notes</option>
-            </select>
-            <select id="position"></select>
-            <label class="bass-mode-option">
-                <input type="checkbox" id="bass-mode-toggle">
-                🎸 Mode Basse (4 cordes)
-            </label>
+
+
+
+        <div class="chord-play-group">
+            <div class="chord-position-line">
+                <select id="chord">
+                    <option value="">— Filtrer Notes —</option>
+                    <option value="all-notes">Toutes les notes</option>
+                </select>
+
+                <select id="position"></select>
+            </div>
+
+            <div class="play-line">
+                <button id="play-chord" class="play-btn" title="Jouer">▶︎</button>
+
+                <label class="inline-option">
+                    <input type="checkbox" id="auto-play-chord"> Auto
+                </label>
+
+                <label class="inline-option">
+                    <input type="checkbox" id="bass-mode-toggle"> 🎸 Basse
+                </label>
+
+
+                <label class="inline-option">
+                    <input type="checkbox" id="enharmonic-toggle">
+                    ♭
+                </label>
+
+            </div>
         </div>
 
-        <div class="chord-play-tools">
-            <button id="play-chord" class="play-chord">▶︎</button>
-            <label class="autoplay-option">
-                <input type="checkbox" id="auto-play-chord"> Auto play
-            </label>
-        </div>
+
+
 
         <!-- === NOUVEAUX CONTRÔLES DE FILTRE CI-DESSOUS === -->
         <div id="note-filter-controls" class="note-filter-controls" style="display: none;">

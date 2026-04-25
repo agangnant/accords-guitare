@@ -1,4 +1,6 @@
-/* css/style.css (version finale avec le correctif iOS) */
+/* =========================================================
+   RESET & BASE
+   ========================================================= */
 
 * {
   box-sizing: border-box;
@@ -8,7 +10,12 @@ body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
   background: #f4f4f9;
+  color: #111;
 }
+
+/* =========================================================
+   CONTENEUR PRINCIPAL
+   ========================================================= */
 
 .container {
   margin: 1rem auto;
@@ -23,22 +30,160 @@ body {
 h1 {
   text-align: center;
   font-size: 1.2rem;
-  margin-top: 0;
-  margin-bottom: 1rem;
+  margin: 0 0 1rem;
 }
 
-.controls {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 1rem;
-}
+/* =========================================================
+   ÉLÉMENTS GÉNÉRIQUES
+   ========================================================= */
 
 select {
   width: 100%;
   padding: 10px;
   font-size: 16px;
 }
+
+label {
+  display: block;
+  font-size: 0.8em;
+  color: #555;
+  margin: 0 0 4px 2px;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* =========================================================
+   BLOC AUDIO (iOS)
+   ========================================================= */
+
+.unlock-audio {
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f8f8f8;
+}
+
+.ios-hint {
+  font-size: 0.65rem;
+  color: #456;
+  background: rgba(30, 144, 255, 0.12);
+  padding: 4px 6px;
+  border-radius: 4px;
+  margin: 0.4rem 0 0;
+  text-align: center;
+}
+
+/* =========================================================
+   GROUPE ACCORD / POSITION / LECTURE
+   ========================================================= */
+
+.chord-play-group {
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.chord-position-line {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#chord {
+  flex: 0 0 40%;
+}
+
+#position {
+  flex: 0 0 60%;
+}
+
+/* ---- Lecture ---- */
+
+.play-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  line-height: 1;
+}
+
+.play-btn {
+  font-size: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: #eee;
+}
+
+.play-btn:disabled {
+  opacity: 0.4;
+}
+
+.inline-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+#auto-play-chord:checked {
+  accent-color: #4caf50;
+}
+
+#bass-mode-toggle:checked {
+  accent-color: #ff9800;
+}
+
+
+#enharmonic-toggle:checked {
+  accent-color: #3f51b5;
+}
+
+/* =========================================================
+   FILTRE PAR NOTES
+   ========================================================= */
+
+.note-filter-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0.75rem 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid #eee;
+}
+
+.note-filter-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.note-filter-btn {
+  flex: 1;
+  max-width: 38px;
+  aspect-ratio: 1;
+  padding: 0;
+  font-size: 0.8em;
+  font-weight: 500;
+  border: 2px solid;
+  border-radius: 6px;
+  background: transparent;
+  transition: all 0.15s ease-in-out;
+}
+
+.note-filter-btn:hover {
+  transform: scale(1.08);
+}
+
+/* =========================================================
+   MANCHE / FRETBOARD
+   ========================================================= */
 
 .fretboard-wrapper {
   overflow-x: auto;
@@ -75,68 +220,41 @@ select {
   border-bottom: 4px solid #333;
 }
 
+/* ---- Marqueurs ---- */
 
-/* Thème clair (par défaut) */
-body {
-  background: #f4f4f9;
-  color: #111;
+.fret-row.marked { background: rgba(0,0,0,0.04); }
+.fret-row.marked-octave { background: rgba(0,0,0,0.08); }
+
+.fret-number.marked,
+.fret-number.marked-octave {
+  font-weight: bold;
+  color: #333;
 }
 
-.container {
-  background: #fff;
-}
+/* =========================================================
+   NOTES
+   ========================================================= */
 
-/* Thème sombre */
-body.dark {
-  background: #111;
-  color: #eee;
-}
-
-body.dark .container {
-  background: #1a1a1a;
-}
-
-body.dark select,
-body.dark button {
-  background: #2a2a2a;
-  color: #eee;
-  border: 1px solid #444;
-}
-
-body.dark .fretboard {
-  background: #111;
-}
-
-
-/* ================== NOTES ================== */
 .note {
   width: 24px;
   height: 24px;
   border-radius: 50%;
+  color: #fff;
+  font-size: 0.65em;
+  opacity: .05;
+  transform: scale(.85);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 0.65em;
-  opacity: .15;
-  transform: scale(.85);
-  transition: opacity 0.2s ease-in-out;
-  cursor: pointer;
-  touch-action: manipulation; /* === LA LIGNE MAGIQUE EST ICI === */
-}
-
-.fretboard.chord-active .note {
-  opacity: 0.05;
-}
-
-.fretboard.chord-active .note.active {
-  opacity: 1;
-  transform: scale(1);
+  transition: opacity 0.2s ease;
+  touch-action: manipulation;
+  filter: saturate(0.6);
 }
 
 .note.active {
   opacity: 1;
   transform: scale(1);
+  filter: none;
 }
 
 .note.root {
@@ -144,262 +262,57 @@ body.dark .fretboard {
   transform: scale(1.15);
 }
 
-/* Couleurs (inchangées) */
-.c { background: #e74c3c; } .cs { background: #f5b7b1; }
-.d { background: #e67e22; } .ds { background: #f5cba7; }
-.e { background: #f1c40f; }
-.f { background: #27ae60; } .fs { background: #abebc6; }
-.g { background: #3498db; } .gs { background: #aed6f1; }
-.a { background: #8e44ad; } .as { background: #d7bde2; }
-.b { background: #7f8c8d; }
 
-/* ================== CONTROLES AUDIO ================== */
+/* Couleurs */
+.c { background:#e74c3c } .cs{background:#f5b7b1}
+.d { background:#e67e22 } .ds{background:#f5cba7}
+.e { background:#f1c40f }
+.f { background:#27ae60 } .fs{background:#abebc6}
+.g { background:#3498db } .gs{background:#aed6f1}
+.a { background:#8e44ad } .as{background:#d7bde2}
+.b { background:#7f8c8d }
+
+/* =========================================================
+   CONTROLES DE SON
+   ========================================================= */
+
 .sound-controls {
   display: flex;
   gap: 1rem;
   margin-top: 1.5rem;
 }
 
-.sound-controls > div {
-  flex: 1;
-}
+.sound-controls > div { flex: 1 }
 
-label {
-  display: block;
-  font-size: 0.8em;
-  color: #555;
-  margin-bottom: 4px;
-  margin-left: 2px;
-}
-
-#mute-button {
-  width: 100%;
-  height: 41px;
-  font-size: 1.2rem;
-  padding: 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f8f8f8;
-  cursor: pointer;
-}
-
-/* ================== STYLE DE DÉBOGAGE ================== */
-.note.debug-tapped {
-  border: 3px solid limegreen !important;
-}
-
-
-.unlock-audio {
-  width: 100%;
-  margin-bottom: 1rem;
-  padding: 12px;
-  font-size: 1rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #f8f8f8;
-  cursor: pointer;
-}
-
-
-
-.ios-hint {
-  font-size: 0.65rem;
-  color: #456;
-  background: rgba(30, 144, 255, 0.12);
-  padding: 4px 6px;
-  border-radius: 4px;
-  margin-top: 0.4rem;
-  text-align: center;
-}
-
-
-
-.chord-play-tools {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.play-chord {
-  padding: 4px 8px;
-  font-size: 0.75rem;
-  line-height: 1;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background: #f6f6f6;
-  cursor: pointer;
-}
-
-.autoplay-option {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.7rem;
-  color: #555;
-}
-
-
-
-.play-chord:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.autoplay-option input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-
-/* Groupe mute + thème */
-.sound-controls > div:last-child {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Boutons mute + thème en petit */
 #mute-button,
 #theme-toggle {
   width: 34px;
   height: 34px;
-  padding: 0;
   font-size: 0.9rem;
   border-radius: 6px;
   border: 1px solid #ccc;
   background: #f6f6f6;
-  cursor: pointer;
 }
 
-/* Hover léger */
-#mute-button:hover,
-#theme-toggle:hover {
-  background: #eaeaea;
-}
+/* =========================================================
+   THÈME SOMBRE
+   ========================================================= */
 
-/* Mode sombre */
-body.dark #mute-button,
-body.dark #theme-toggle {
-  background: #2a2a2a;
-  border-color: #444;
+body.dark {
+  background: #111;
   color: #eee;
 }
 
-/* ================== MARQUEURS DE FRETTE ================== */
-
-.fret-row.marked {
-    background-color: rgba(0, 0, 0, 0.04);
+body.dark .container { background:#1a1a1a }
+body.dark select,
+body.dark button {
+  background:#2a2a2a;
+  color:#eee;
+  border-color:#444;
 }
 
-.fret-row.marked-octave {
-    background-color: rgba(0, 0, 0, 0.08);
-}
-
-/* === NOUVELLE RÈGLE CI-DESSOUS === */
-/* On met en gras les numéros de frette qui ont la classe .marked ou .marked-octave */
-.fret-number.marked,
-.fret-number.marked-octave {
-    font-weight: bold;
-    color: #333; /* On peut aussi les rendre un peu plus foncés */
-}
-/* === FIN DE LA NOUVELLE RÈGLE === */
-
-
-/* On s'assure que ça marche aussi en thème sombre */
-body.dark .fret-row.marked {
-    background-color: rgba(255, 255, 255, 0.04);
-}
-
-body.dark .fret-row.marked-octave {
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
-/* === NOUVELLE RÈGLE POUR LE THÈME SOMBRE CI-DESSOUS === */
-body.dark .fret-number.marked,
-body.dark .fret-number.marked-octave {
-    color: #ccc; /* Un peu plus clair en mode sombre */
-}
-/* === FIN DE LA NOUVELLE RÈGLE === */
-
-/* ================== MODE BASSE ================== */
-
-.bass-mode-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.9em;
-    color: #555;
-    margin-top: 8px;
-    cursor: pointer;
-    user-select: none; /* Empêche la sélection du texte au clic */
-}
-
-body.dark .bass-mode-option {
-    color: #bbb;
-}
-
-/* La classe qui sera ajoutée au manche pour masquer les cordes */
-.fretboard.bass-mode .cell[data-s="0"],
-.fretboard.bass-mode .cell[data-s="1"] {
-    display: none;
-}
-
-
-/* ================== FILTRE DE NOTES (NOUVEAU STYLE) ================== */
-.note-filter-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin: 0.75rem 0;
-    padding-top: 0.75rem;
-    border-top: 1px solid #eee;
-}
-.note-filter-row {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-}
-.note-filter-btn {
-    flex: 1;
-    max-width: 38px;
-    aspect-ratio: 1 / 1;
-    padding: 0;
-    font-size: 0.8em;
-    font-weight: 500;
-    border: 2px solid;
-    border-radius: 6px;
-    background-color: transparent;
-    cursor: pointer;
-    transition: all 0.15s ease-in-out;
-}
-.note-filter-btn:hover { transform: scale(1.08); }
-.note-filter-btn.c { border-color: #e74c3c; color: #e74c3c; }
-.note-filter-btn.cs { border-color: #f5b7b1; color: #f5b7b1; }
-.note-filter-btn.d { border-color: #e67e22; color: #e67e22; }
-.note-filter-btn.ds { border-color: #f5cba7; color: #f5cba7; }
-.note-filter-btn.e { border-color: #f1c40f; color: #f1c40f; }
-.note-filter-btn.f { border-color: #27ae60; color: #27ae60; }
-.note-filter-btn.fs { border-color: #abebc6; color: #abebc6; }
-.note-filter-btn.g { border-color: #3498db; color: #3498db; }
-.note-filter-btn.gs { border-color: #aed6f1; color: #aed6f1; }
-.note-filter-btn.a { border-color: #8e44ad; color: #8e44ad; }
-.note-filter-btn.as { border-color: #d7bde2; color: #d7bde2; }
-.note-filter-btn.b { border-color: #7f8c8d; color: #7f8c8d; }
-.note-filter-btn.active {
-    color: #fff !important;
-    transform: scale(1.1);
-}
-.note-filter-btn.c.active { background-color: #e74c3c; }
-.note-filter-btn.cs.active { background-color: #f5b7b1; color: #555 !important; }
-.note-filter-btn.d.active { background-color: #e67e22; }
-.note-filter-btn.ds.active { background-color: #f5cba7; color: #555 !important; }
-.note-filter-btn.e.active { background-color: #f1c40f; }
-.note-filter-btn.f.active { background-color: #27ae60; }
-.note-filter-btn.fs.active { background-color: #abebc6; color: #555 !important; }
-.note-filter-btn.g.active { background-color: #3498db; }
-.note-filter-btn.gs.active { background-color: #aed6f1; color: #555 !important; }
-.note-filter-btn.a.active { background-color: #8e44ad; }
-.note-filter-btn.as.active { background-color: #d7bde2; color: #555 !important; }
-.note-filter-btn.b.active { background-color: #7f8c8d; }
-body.dark .note-filter-controls { border-top-color: #333; }
+body.dark .chord-play-group { border-bottom-color:#333 }
+body.dark .note-filter-controls { border-top-color:#333 }
+body.dark .fret-row.marked { background:rgba(255,255,255,0.04) }
+body.dark .fret-row.marked-octave { background:rgba(255,255,255,0.08) }
+body.dark .fret-number.marked { color:#ccc }
