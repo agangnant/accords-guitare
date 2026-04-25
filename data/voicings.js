@@ -1,6 +1,7 @@
 // data/voicings.js
 
-const voicings = {
+export const voicings = {
+// const voicings = {
 
   /* ================== MAJEURS ================== */
   C: [
